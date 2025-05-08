@@ -522,6 +522,7 @@
         console.error('Не все необходимые данные предоставлены для открытия модального окна');
         return;
       }
+
       document.getElementById('modalRoomId').value = roomId;
       document.getElementById('modalCheckInDate').value = startDate.toISOString().split('T')[0];
       document.getElementById('modalCheckOutDate').value = endDate.toISOString().split('T')[0];
@@ -529,10 +530,31 @@
       document.getElementById('modalDateRange').textContent =
         `${formatDate(startDate)} - ${formatDate(endDate)} (${daysCount} дней)`;
       document.getElementById('modalRoomNumber').textContent = selectedRoomNumber;
-      const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+
+      const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'), {
+        // Опция для отключения блокировки прокрутки в Bootstrap 5
+        scroll: true
+      });
+
       bookingModal.show();
+
+      // Восстановление прокрутки после открытия модального окна
+      setTimeout(() => {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = 'auto';
+        document.body.style.paddingRight = '0';
+      }, 50);
+
       document.getElementById('clientName').focus();
     }
+
+    // Дополнительно добавьте обработчик события для Modal
+    document.getElementById('bookingModal').addEventListener('shown.bs.modal', function () {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = 'auto';
+      document.body.style.paddingRight = '0';
+    });
+
 
     function formatDate(date) {
       if (!(date instanceof Date)) {

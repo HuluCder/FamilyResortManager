@@ -1,93 +1,72 @@
 @page "{id:int}"
-@model FamilyResortManager.Pages.Clients.DetailsModel
+@model FamilyResortManager.Pages.Clients.ClientDetailsModel
 @{
-    ViewData["Title"] = "Детали клиента";
+    ViewData["Title"] = "Клиент";
 }
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] – Family Resort Manager</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Animate.css CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <!-- Tippy.js CDN -->
-    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="~/css/clients.css" />
-</head>
-<body>
-<div class="container mx-auto p-6">
-    <div class="card animate__animated animate__fadeIn">
-        <div class="card-header">
-            Детали клиента
-        </div>
-        <div class="card-body">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3">Основная информация</h3>
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <div class="w-1/3 font-medium text-gray-600">ID:</div>
-                            <div class="w-2/3" data-tippy-content="Уникальный идентификатор клиента">@Model.Item.Id</div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-1/3 font-medium text-gray-600">Имя:</div>
-                            <div class="w-2/3">@Model.Item.Name</div>
-                        </div>
-                    </div>
-                </div>
+<a href="/Admin/Clients" class="text-blue-500 hover:underline text-sm inline-flex items-center mb-4">
+    ← Назад к списку клиентов
+</a>
 
-                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-3">Контактные данные</h3>
-                    <div class="space-y-3">
-                        <div class="flex">
-                            <div class="w-1/3 font-medium text-gray-600">Email:</div>
-                            <div class="w-2/3">
-                                <a href="mailto:@Model.Item.Email" class="text-blue-500 hover:underline transition-all"
-                                   data-tippy-content="Нажмите, чтобы отправить email">@Model.Item.Email</a>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-1/3 font-medium text-gray-600">Телефон:</div>
-                            <div class="w-2/3">
-                                <a href="tel:@Model.Item.Phone" class="text-blue-500 hover:underline transition-all"
-                                   data-tippy-content="Нажмите, чтобы позвонить">@Model.Item.Phone</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<div class="p-6 max-w-5xl mx-auto bg-white dark:bg-dark-blue rounded-xl shadow-md space-y-6">
+    <h2 class="text-2xl font-bold text-dark-blue dark:text-yellow">Информация о клиенте</h2>
 
-            <div class="bg-gray-50 p-4 rounded-lg shadow-sm mb-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-3">Дополнительная информация</h3>
-                <div class="text-gray-700 whitespace-pre-line">@(string.IsNullOrEmpty(Model.Item.Info) ? "Нет дополнительной информации" : Model.Item.Info)</div>
-            </div>
+    <div class="space-y-1 text-lg text-dark-blue dark:text-yellow">
+        <p><strong>Имя:</strong> @Model.Client.Name</p>
+        <p><strong>Телефон:</strong> @Model.Client.Phone</p>
+        <p><strong>Email:</strong> @(Model.Client.Email ?? "не указан")</p>
+    </div>
 
-            <div class="flex space-x-4 mt-6">
-                <a asp-page="./Edit" asp-route-id="@Model.Item.Id" class="btn btn-primary px-6 py-3 animate__animated animate__pulse animate__infinite"
-                   data-tippy-content="Редактировать данные клиента">Редактировать</a>
-                <a asp-page="./Index" class="btn btn-secondary px-6 py-3"
-                   data-tippy-content="Вернуться к списку клиентов">Назад к списку</a>
-            </div>
-        </div>
+    <div class="text-sm text-blue-700 dark:text-yellow mt-4">
+        Всего бронирований: <strong>@Model.Bookings.Count</strong> |
+        Подтверждено: <strong>@Model.Bookings.Count(b => b.Status == "Подтверждено")</strong> |
+        Ожидают: <strong>@Model.Bookings.Count(b => b.Status == "Ожидание")</strong> |
+        Отменено: <strong>@Model.Bookings.Count(b => b.Status == "Отменено")</strong>
+    </div>
+
+    <h3 class="text-xl font-semibold mt-6 text-dark-blue dark:text-yellow">Бронирования</h3>
+
+    <div class="overflow-x-auto">
+        <table class="w-full table-auto mt-3 text-left border-collapse">
+            <thead>
+            <tr class="bg-blue-100 dark:bg-yellow text-blue-900 dark:text-dark-blue text-sm">
+                <th class="p-2">Номер</th>
+                <th class="p-2">Тип</th>
+                <th class="p-2">Заезд</th>
+                <th class="p-2">Выезд</th>
+                <th class="p-2">Статус</th>
+                <th class="p-2 text-right">Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var booking in Model.Bookings)
+            {
+                <tr class="border-t hover:bg-blue-50 dark:hover:bg-yellow-200 transition duration-100">
+                    <td class="p-2">@booking.Room?.Number</td>
+                    <td class="p-2">@booking.Room?.Type</td>
+                    <td class="p-2">@booking.CheckInDate.ToString("dd.MM.yyyy")</td>
+                    <td class="p-2">@booking.CheckOutDate.ToString("dd.MM.yyyy")</td>
+                    <td class="p-2">
+                            <span class="inline-block px-2 py-1 rounded-full text-sm font-medium @GetStatusBadgeColor(booking.Status)">
+                                @booking.Status
+                            </span>
+                    </td>
+                    <td class="p-2 text-right space-x-2 text-sm">
+                        <a href="Admin//Bookings/Details/@booking.Id" class="text-blue-700 dark:text-dark-blue hover:underline">Подробнее</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
     </div>
 </div>
 
-<script>
-    // Initialize Tippy.js tooltips
-    tippy('[data-tippy-content]', {
-        placement: 'top',
-        animation: 'scale',
-        theme: 'light-border',
-        duration: 200
-    });
-</script>
-</body>
-</html>
+@functions {
+    string GetStatusBadgeColor(string status) => status switch
+    {
+        "Подтверждено" => "bg-blue-200 text-blue-800",
+        "Ожидание" => "bg-yellow-200 text-yellow-800",
+        "Отменено" => "bg-gray-300 text-gray-800",
+        _ => "bg-gray-200 text-gray-800"
+    };
+}
