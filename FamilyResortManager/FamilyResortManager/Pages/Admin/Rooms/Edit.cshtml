@@ -1,0 +1,112 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Rooms.EditModel
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактировать номер</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Animate.css CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Tippy.js CDN -->
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <script src="https://unpkg.com/tippy.js@6"></script>*
+    <style>
+        /* Custom styles for enhanced UX */
+        .card {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            color: white;
+        }
+        .form-control {
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header py-4 px-6 text-xl font-bold">
+            Редактировать номер
+        </div>
+        <div class="card-body p-6 bg-white">
+            <form method="post">
+                <input type="hidden" asp-for="Input.Id" />
+
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Number" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Number" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none"
+                           data-tippy-content="Введите номер комнаты" />
+                    <span asp-validation-for="Input.Number" class="text-red-500 text-sm mt-1"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Type" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Type" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none"
+                           data-tippy-content="Введите тип номера (например, Стандарт, Люкс)" />
+                    <span asp-validation-for="Input.Type" class="text-red-500 text-sm mt-1"></span>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Price" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Price" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none"
+                           data-tippy-content="Введите цену за ночь" />
+                    <span asp-validation-for="Input.Price" class="text-red-500 text-sm mt-1"></span>
+                </div>
+
+                <div class="form-group mb-6">
+                    <label asp-for="Input.Status" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <select asp-for="Input.Status" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none"
+                            data-tippy-content="Выберите статус номера">
+                        <option value="Свободен">Свободен</option>
+                        <option value="Занят">Занят</option>
+                        <option value="Ремонт">Ремонт</option>
+                    </select>
+                    <span asp-validation-for="Input.Status" class="text-red-500 text-sm mt-1"></span>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn btn-primary px-6 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 animate__animated animate__pulse animate__infinite"
+                            data-tippy-content="Сохранить изменения">Сохранить</button>
+                    <a asp-page="./Index" class="btn btn-secondary px-6 py-3 rounded-lg text-white bg-gray-500 hover:bg-gray-600"
+                       data-tippy-content="Вернуться к списку номеров"
+                       onclick="return confirm('Вы уверены, что хотите отменить изменения?');">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Tippy.js tooltips
+    tippy('[data-tippy-content]', {
+        placement: 'top',
+        animation: 'scale',
+        theme: 'light-border',
+        duration: 200
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</body>
+</html>

@@ -1,0 +1,21 @@
+@page
+@model FamilyResortManager.Pages.Admin.Bookings.BookingSuccessModel
+@{
+    ViewData["Title"] = "Заявка отправлена";
+}
+
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+            <h2>Заявка успешно отправлена!</h2>
+        </div>
+        <div class="card-body">
+            <p>Ваша заявка на бронирование успешно отправлена.</p>
+            <p>Мы свяжемся с вами в ближайшее время для подтверждения бронирования.</p>
+            
+            <div class="mt-6">
+                <a href="/BookCalendar/Calendar" class="btn btn-primary">Вернуться к календарю</a>
+            </div>
+        </div>
+    </div>
+</div>

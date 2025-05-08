@@ -1,0 +1,40 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Bookings.DeleteModel
+
+<div class="bg-white rounded-lg shadow-md animate__animated animate__fadeInUp">
+    <div class="px-6 py-4 border-b border-gray-200 font-semibold text-xl">
+        Удалить бронирование
+    </div>
+    <div class="p-6">
+        <h5 class="mb-4">Вы уверены, что хотите удалить это бронирование?</h5>
+
+        <dl class="mb-6">
+            <dt class="font-medium">Комната:</dt>
+            <dd class="ml-4">@Model.Item.RoomId</dd>
+
+            <dt class="font-medium mt-2">Клиент:</dt>
+            <dd class="ml-4">@Model.Item.ClientId</dd>
+
+            <dt class="font-medium mt-2">Заезд:</dt>
+            <dd class="ml-4">@Model.Item.CheckInDate:yyyy-MM-dd</dd>
+
+            <dt class="font-medium mt-2">Выезд:</dt>
+            <dd class="ml-4">@Model.Item.CheckOutDate:yyyy-MM-dd</dd>
+
+            <dt class="font-medium mt-2">Статус:</dt>
+            <dd class="ml-4">@Model.Item.Status</dd>
+        </dl>
+
+        <form method="post" class="flex space-x-2">
+            <input type="hidden" asp-for="Item.Id" />
+            <button type="submit"
+                    class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500">
+                Удалить
+            </button>
+            <a asp-page="./Index"
+               class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-200">
+                Отмена
+            </a>
+        </form>
+    </div>
+</div>

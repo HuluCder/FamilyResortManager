@@ -1,0 +1,243 @@
+@page
+@model FamilyResortManager.Pages.Admin.AnalyticsModel
+@{
+    ViewData["Title"] = "Аналитика";
+}
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<!-- Custom CSS -->
+<link rel="stylesheet" href="~/css/analytics.css" />
+
+<div class="container-fluid py-5">
+    <h1 class="display-5 text-center mb-5 text-gradient"><i class="fas fa-chart-bar me-2"></i> Панель аналитики</h1>
+
+    <!-- Filter Section -->
+    <div class="card filter-card shadow-lg mb-5">
+        <div class="card-body">
+            <form method="get" asp-page="./Analytics" id="filterForm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label for="startDate" class="form-label fw-bold">Начало периода</label>
+                        <input type="date" class="form-control shadow-sm" id="startDate" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="endDate" class="form-label fw-bold">Конец периода</label>
+                        <input type="date" class="form-control shadow-sm" id="endDate" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" required />
+                    </div>
+                    <div class="col-md-3">
+                        <label for="roomType" class="form-label fw-bold">Тип номера</label>
+                        <select class="form-select shadow-sm" id="roomType" name="roomType">
+                            <option value="">Все типы</option>
+                            @foreach (var roomType in Model.AvailableRoomTypes)
+                            {
+                                <option value="@roomType" selected="@(Model.SelectedRoomType == roomType)">@roomType</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-gradient w-100"><i class="fas fa-filter me-2"></i> Применить</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Metrics and Charts -->
+    <div class="row g-4">
+        <!-- Key Metrics -->
+        <div class="col-lg-4">
+            <div class="card metric-card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-bookmark fa-2x mb-3 text-primary"></i>
+                    <h5 class="card-title">Всего бронирований</h5>
+                    <p class="display-6 fw-bold">@Model.TotalBookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card metric-card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-2x mb-3 text-success"></i>
+                    <h5 class="card-title">Бронирований за период</h5>
+                    <p class="display-6 fw-bold">@Model.PeriodBookings</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card metric-card shadow-lg">
+                <div class="card-body text-center">
+                    <i class="fas fa-tenge-sign fa-2x mb-3 text-info"></i>
+                    <h5 class="card-title">Доход за период</h5>
+                    <p class="display-6 fw-bold">@Model.PeriodIncome.ToString("C0")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Chart -->
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i> Динамика бронирований</h5>
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Rooms Chart -->
+        <div class="col-lg-6">
+            <div class="card chart-card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-home me-2"></i> Популярные номера</h5>
+                    <canvas id="popularRoomsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Income Chart -->
+        <div class="col-12">
+            <div class="card chart-card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-bar me-2"></i> Финансовая аналитика</h5>
+                    <canvas id="incomeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script>
+        // Chart data
+        const bookingsData = @Html.Raw(Json.Serialize(Model.BookingsChartData));
+        const roomsData = @Html.Raw(Json.Serialize(Model.RoomsChartData));
+        const incomeData = @Html.Raw(Json.Serialize(Model.IncomeChartData));
+
+        // Gradient helper
+        function createGradient(ctx, colorStart, colorEnd) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, colorStart);
+            gradient.addColorStop(1, colorEnd);
+            return gradient;
+        }
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctxBookings = document.getElementById('bookingsChart').getContext('2d');
+            const ctxRooms = document.getElementById('popularRoomsChart').getContext('2d');
+            const ctxIncome = document.getElementById('incomeChart').getContext('2d');
+
+            // Bookings Chart (Line with Gradient)
+            new Chart(ctxBookings, {
+                type: 'line',
+                data: {
+                    labels: bookingsData.labels,
+                    datasets: [{
+                        label: 'Бронирования',
+                        data: bookingsData.datasets[0].data,
+                        borderColor: '#4BC0C0',
+                        backgroundColor: createGradient(ctxBookings, 'rgba(75, 192, 192, 0.5)', 'rgba(75, 192, 192, 0)'),
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#4BC0C0',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Бронирования по месяцам', font: { size: 16 } },
+                        tooltip: { mode: 'index', intersect: false },
+                        zoom: {
+                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+                            pan: { enabled: true, mode: 'x' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Количество' } },
+                        x: { title: { display: true, text: 'Месяц' } }
+                    },
+                    animation: { duration: 1500, easing: 'easeOutQuart' }
+                }
+            });
+
+            // Popular Rooms Chart (Doughnut with Gradient)
+            new Chart(ctxRooms, {
+                type: 'doughnut',
+                data: {
+                    labels: roomsData.labels,
+                    datasets: [{
+                        label: 'Бронирования',
+                        data: roomsData.datasets[0].data,
+                        backgroundColor: [
+                            createGradient(ctxRooms, '#FF6384', '#FF6384'),
+                            createGradient(ctxRooms, '#36A2EB', '#36A2EB'),
+                            createGradient(ctxRooms, '#FFCE56', '#FFCE56'),
+                            createGradient(ctxRooms, '#4BC0C0', '#4BC0C0'),
+                            createGradient(ctxRooms, '#9966FF', '#9966FF')
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Распределение по номерам', font: { size: 16 } },
+                        tooltip: { enabled: true }
+                    },
+                    animation: { duration: 1500, easing: 'easeOutQuart' }
+                }
+            });
+
+            // Income Chart (Bar with Gradient)
+            new Chart(ctxIncome, {
+                type: 'bar',
+                data: {
+                    labels: incomeData.labels,
+                    datasets: [{
+                        label: 'Доход (₸)',
+                        data: incomeData.datasets[0].data,
+                        backgroundColor: createGradient(ctxIncome, 'rgba(54, 162, 235, 0.8)', 'rgba(54, 162, 235, 0.2)'),
+                        borderColor: '#36A2EB',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'top' },
+                        title: { display: true, text: 'Доходы по месяцам', font: { size: 16 } },
+                        tooltip: {
+                            callbacks: { label: (context) => `${context.raw.toLocaleString()} ₸` }
+                        },
+                        zoom: {
+                            zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
+                            pan: { enabled: true, mode: 'x' }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Доход (₸)' } },
+                        x: { title: { display: true, text: 'Месяц' } }
+                    },
+                    animation: { duration: 1500, easing: 'easeOutQuart' }
+                }
+            });
+        });
+
+        // Client-side date validation
+        document.getElementById('filterForm').addEventListener('submit', function(e) {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            if (endDate < startDate) {
+                e.preventDefault();
+                alert('Дата окончания не может быть раньше даты начала.');
+            }
+        });
+    </script>
+}

@@ -1,0 +1,38 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Bookings.DetailsModel
+
+<div class="bg-white rounded-lg shadow-md animate__animated animate__fadeInUp">
+    <div class="px-6 py-4 border-b border-gray-200 font-semibold text-xl">
+        Детали бронирования
+    </div>
+    <div class="p-6">
+        <dl class="mb-6">
+            <dt class="font-medium">Id:</dt>
+            <dd class="ml-4">@Model.Item.Id</dd>
+
+            <dt class="font-medium mt-2">Комната:</dt>
+            <dd class="ml-4">@Model.RoomName</dd>
+
+            <dt class="font-medium mt-2">Клиент:</dt>
+            <dd class="ml-4">@Model.ClientName</dd>
+
+            <dt class="font-medium mt-2">Заезд:</dt>
+            <dd class="ml-4">@Model.Item.CheckInDate:yyyy-MM-dd</dd>
+
+            <dt class="font-medium mt-2">Выезд:</dt>
+            <dd class="ml-4">@Model.Item.CheckOutDate:yyyy-MM-dd</dd>
+
+            <dt class="font-medium mt-2">Статус:</dt>
+            <dd class="ml-4">@Model.Item.Status</dd>
+        </dl>
+
+        <a asp-page="./Edit" asp-route-id="@Model.Item.Id"
+           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 me-2">
+            Редактировать
+        </a>
+        <a asp-page="./Index"
+           class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-200">
+            Назад к списку
+        </a>
+    </div>
+</div>

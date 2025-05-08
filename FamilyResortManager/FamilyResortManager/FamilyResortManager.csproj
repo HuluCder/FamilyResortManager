@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+        <PackageReference Include="ClosedXML" Version="0.105.0-rc" />
+        <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components" Version="8.0.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Pages\Employee\" />
+      <Folder Include="Pages\Identity\Account\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Pages\Admin\Bookings\Create.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Bookings\Delete.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Bookings\Details.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Bookings\Edit.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Bookings\Index.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Clients\Create.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Clients\Delete.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Clients\Details.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Clients\Edit.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Clients\Index.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Rooms\Create.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Rooms\Delete.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Rooms\Details.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Rooms\Edit.cshtml" />
+      <AdditionalFiles Include="Pages\Admin\Rooms\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Pages\Bookings\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Bookings\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Bookings\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Bookings\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Bookings\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Rooms\Create.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Rooms\Delete.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Rooms\Details.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Rooms\Edit.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Rooms\Index.cshtml" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,59 @@
+@page
+@model FamilyResortManager.Pages.Bookings.CreateModel
+
+<div class="bg-white rounded-lg shadow-md animate__animated animate__fadeInUp">
+  <div class="px-6 py-4 border-b border-gray-200 font-semibold text-xl">
+    Добавить бронирование
+  </div>
+  <div class="p-6">
+    <form method="post">
+      <div class="mb-4">
+        <label asp-for="Input.RoomId" class="block text-gray-700">Номер</label>
+        <select asp-for="Input.RoomId" class="w-full border border-gray-300 rounded px-3 py-2"
+                asp-items="Model.RoomsSelectList">
+          <option value="">— выберите номер —</option>
+        </select>
+        <span asp-validation-for="Input.RoomId" class="text-red-600"></span>
+      </div>
+      <div class="mb-4">
+        <label asp-for="Input.ClientId" class="block text-gray-700">Клиент</label>
+        <select asp-for="Input.ClientId" class="w-full border border-gray-300 rounded px-3 py-2"
+                asp-items="Model.ClientsSelectList">
+          <option value="">— выберите клиента —</option>
+        </select>
+        <span asp-validation-for="Input.ClientId" class="text-red-600"></span>
+      </div>
+      <div class="mb-4">
+        <label asp-for="Input.CheckInDate" class="block text-gray-700">Дата заезда</label>
+        <input asp-for="Input.CheckInDate" type="date"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+        <span asp-validation-for="Input.CheckInDate" class="text-red-600"></span>
+      </div>
+      <div class="mb-4">
+        <label asp-for="Input.CheckOutDate" class="block text-gray-700">Дата выезда</label>
+        <input asp-for="Input.CheckOutDate" type="date"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+        <span asp-validation-for="Input.CheckOutDate" class="text-red-600"></span>
+      </div>
+      <div class="mb-6">
+        <label asp-for="Input.Status" class="block text-gray-700">Статус</label>
+        <input asp-for="Input.Status" type="text"
+               class="w-full border border-gray-300 rounded px-3 py-2" />
+        <span asp-validation-for="Input.Status" class="text-red-600"></span>
+      </div>
+
+      <button type="submit"
+              class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-500 me-2">
+        Сохранить
+      </button>
+      <a asp-page="./Index"
+         class="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-200">
+        Отмена
+      </a>
+    </form>
+  </div>
+</div>
+
+@section Scripts {
+  <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,106 @@
+/* General styling */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.text-gradient {
+    background: linear-gradient(90deg, #4BC0C0, #36A2EB);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Filter card */
+.filter-card {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #e9ecef);
+}
+
+.form-control, .form-select {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4BC0C0;
+    box-shadow: 0 0 8px rgba(75, 192, 192, 0.3);
+}
+
+/* Button */
+.btn-gradient {
+    background: linear-gradient(90deg, #4BC0C0, #36A2EB);
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    transition: transform 0.2s ease;
+}
+
+.btn-gradient:hover {
+    transform: scale(1.05);
+    background: linear-gradient(90deg, #36A2EB, #4BC0C0);
+}
+
+/* Metric cards */
+.metric-card {
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff, #f1f3f5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Chart cards */
+.chart-card {
+    border: none;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.chart-card:hover {
+    transform: translateY(-5px);
+}
+
+canvas {
+    max-height: 350px;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .metric-card, .chart-card {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-size: 0.95rem;
+    }
+
+    .btn-gradient {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .display-5 {
+        font-size: 2rem;
+    }
+
+    .display-6 {
+        font-size: 1.5rem;
+    }
+
+    .form-control, .form-select {
+        font-size: 0.9rem;
+    }
+}

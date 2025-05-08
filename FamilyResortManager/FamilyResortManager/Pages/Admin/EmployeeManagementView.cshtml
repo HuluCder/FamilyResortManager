@@ -1,0 +1,58 @@
+@page
+@model FamilyResortManager.Pages.Admin.EmployeeManagementModel
+@{
+    ViewData["Title"] = "Управление сотрудниками";
+}
+
+<div class="container">
+    <h2>Управление сотрудниками</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Добавить нового сотрудника</h3>
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="NewEmployee.Email">Email</label>
+                    <input asp-for="NewEmployee.Email" class="form-control" />
+                    <span asp-validation-for="NewEmployee.Email" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label asp-for="NewEmployee.Password">Пароль</label>
+                    <input asp-for="NewEmployee.Password" class="form-control" type="password" />
+                    <span asp-validation-for="NewEmployee.Password" class="text-danger"></span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Создать сотрудника</button>
+            </form>
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Существующие сотрудники</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var employee in Model.Employees)
+                    {
+                        <tr>
+                            <td>@employee.Email</td>
+                            <td>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@employee.Id" 
+                                      onsubmit="return confirm('Вы уверены, что хотите удалить этого сотрудника?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

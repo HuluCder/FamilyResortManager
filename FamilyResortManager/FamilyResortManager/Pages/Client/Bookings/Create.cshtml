@@ -1,0 +1,52 @@
+@page
+@model FamilyResortManager.Pages.Client.Bookings.CreateModel
+@{
+    ViewData["Title"] = "Бронирование номера";
+}
+
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+            <h2>Заявка на бронирование</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <input type="hidden" asp-for="Booking.RoomId" />
+                <input type="hidden" asp-for="Booking.CheckInDate" />
+                <input type="hidden" asp-for="Booking.CheckOutDate" />
+                
+                <div class="mb-4">
+                    <label class="block mb-2">Выбранные даты:</label>
+                    <div class="p-3 bg-gray-100 rounded">
+                        @Model.Booking.CheckInDate.ToString("dd.MM.yyyy") - @Model.Booking.CheckOutDate.ToString("dd.MM.yyyy") 
+                        (@((Model.Booking.CheckOutDate - Model.Booking.CheckInDate).Days) дней)
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block mb-2">Выбранный номер:</label>
+                    <div class="p-3 bg-gray-100 rounded">
+                        №@Model.RoomNumber
+                    </div>
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label asp-for="Booking.Client.Name" class="block mb-2">Ваше имя</label>
+                    <input asp-for="Booking.Client.Name" class="form-control" required />
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label asp-for="Booking.Client.Email" class="block mb-2">Email</label>
+                    <input asp-for="Booking.Client.Email" type="email" class="form-control" required />
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label asp-for="Booking.Client.Phone" class="block mb-2">Телефон</label>
+                    <input asp-for="Booking.Client.Phone" class="form-control" required />
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Отправить заявку</button>
+            </form>
+        </div>
+    </div>
+</div>

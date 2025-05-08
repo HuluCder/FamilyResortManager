@@ -1,0 +1,113 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background: #f3f4f6;
+}
+.card {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
+}
+.card-header {
+    background: linear-gradient(135deg, #1e40af, #3b82f6); /* Blue gradient */
+    color: white;
+    padding: 1.5rem 2rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+.card-body {
+    padding: 2rem;
+}
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table th {
+    background: #f9fafb;
+    color: #1f2937;
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 2px solid #e5e7eb;
+}
+.table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    color: #4b5563;
+}
+.table tr {
+    transition: background 0.2s ease;
+}
+.table tr:hover {
+    background: #f3f4f6;
+}
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.btn-primary {
+    background: #3b82f6; /* Blue */
+}
+.btn-primary:hover {
+    background: #2563eb; /* Darker blue */
+}
+.btn-info {
+    background: #10b981; /* Green */
+}
+.btn-info:hover {
+    background: #059669;
+}
+.btn-secondary {
+    background: #6b7280; /* Gray */
+}
+.btn-secondary:hover {
+    background: #4b5563;
+}
+.btn-danger {
+    background: #ef4444; /* Red */
+}
+.btn-danger:hover {
+    background: #dc2626;
+}
+.table-container {
+    overflow-x: auto;
+}
+.form-control {
+    transition: all 0.3s ease;
+}
+.form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+.text-danger {
+    color: #ef4444;
+}
+@media (max-width: 640px) {
+    .card-header {
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .table th, .table td {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+    }
+    .btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+    }
+}

@@ -1,0 +1,100 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Rooms.DetailsModel
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали номера</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Animate.css CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Tippy.js CDN -->
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <style>
+        /* Custom styles for enhanced UX */
+        .card {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            color: white;
+        }
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .dl-row dt {
+            font-weight: 600;
+            color: #374151;
+        }
+        .dl-row dd {
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header py-4 px-6 text-xl font-bold">
+            Детали номера
+        </div>
+        <div class="card-body p-6 bg-white">
+            <dl class="mb-6">
+                <div class="dl-row flex mb-4">
+                    <dt class="w-1/6 font-medium text-gray-700">Id</dt>
+                    <dd class="w-5/6">@Model.Item.Id</dd>
+                </div>
+                <div class="dl-row flex mb-4">
+                    <dt class="w-1/6 font-medium text-gray-700">Номер</dt>
+                    <dd class="w-5/6">@Model.Item.Number</dd>
+                </div>
+                <div class="dl-row flex mb-4">
+                    <dt class="w-1/6 font-medium text-gray-700">Тип</dt>
+                    <dd class="w-5/6">@Model.Item.Type</dd>
+                </div>
+                <div class="dl-row flex mb-4">
+                    <dt class="w-1/6 font-medium text-gray-700">Цена</dt>
+                    <dd class="w-5/6">@Model.Item.Price</dd>
+                </div>
+                <div class="dl-row flex mb-4">
+                    <dt class="w-1/6 font-medium text-gray-700">Статус</dt>
+                    <dd class="w-5/6">@Model.Item.Status</dd>
+                </div>
+            </dl>
+
+            <div class="flex space-x-4">
+                <a asp-page="./Edit" asp-route-id="@Model.Item.Id"
+                   class="btn btn-primary px-6 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 animate__animated animate__pulse animate__infinite"
+                   data-tippy-content="Редактировать данные номера">Редактировать</a>
+                <a asp-page="./Index"
+                   class="btn btn-secondary px-6 py-3 rounded-lg text-white bg-gray-500 hover:bg-gray-600"
+                   data-tippy-content="Вернуться к списку номеров">Назад к списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Tippy.js tooltips
+    tippy('[data-tippy-content]', {
+        placement: 'top',
+        animation: 'scale',
+        theme: 'light-border',
+        duration: 200
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</body>
+</html>

@@ -1,0 +1,17 @@
+@page
+@model FamilyResortManager.Pages.Identity.Account.LogoutModel
+@{
+    ViewData["Title"] = "Выход";
+}
+
+<div class="container">
+    <h2>Выход из системы</h2>
+    <p>Вы успешно вышли из системы.</p>
+</div>
+
+<script>
+    // Перенаправление на главную страницу через 3 секунды
+    setTimeout(function() {
+        window.location.href = '/';
+    }, 3000);
+</script>

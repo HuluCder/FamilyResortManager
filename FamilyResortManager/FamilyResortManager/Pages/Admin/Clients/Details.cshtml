@@ -1,0 +1,93 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Clients.DetailsModel
+@{
+    ViewData["Title"] = "Детали клиента";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] – Family Resort Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Animate.css CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Tippy.js CDN -->
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/clients.css" />
+</head>
+<body>
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+            Детали клиента
+        </div>
+        <div class="card-body">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">Основная информация</h3>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3 font-medium text-gray-600">ID:</div>
+                            <div class="w-2/3" data-tippy-content="Уникальный идентификатор клиента">@Model.Item.Id</div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3 font-medium text-gray-600">Имя:</div>
+                            <div class="w-2/3">@Model.Item.Name</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3">Контактные данные</h3>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <div class="w-1/3 font-medium text-gray-600">Email:</div>
+                            <div class="w-2/3">
+                                <a href="mailto:@Model.Item.Email" class="text-blue-500 hover:underline transition-all"
+                                   data-tippy-content="Нажмите, чтобы отправить email">@Model.Item.Email</a>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="w-1/3 font-medium text-gray-600">Телефон:</div>
+                            <div class="w-2/3">
+                                <a href="tel:@Model.Item.Phone" class="text-blue-500 hover:underline transition-all"
+                                   data-tippy-content="Нажмите, чтобы позвонить">@Model.Item.Phone</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg shadow-sm mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Дополнительная информация</h3>
+                <div class="text-gray-700 whitespace-pre-line">@(string.IsNullOrEmpty(Model.Item.Info) ? "Нет дополнительной информации" : Model.Item.Info)</div>
+            </div>
+
+            <div class="flex space-x-4 mt-6">
+                <a asp-page="./Edit" asp-route-id="@Model.Item.Id" class="btn btn-primary px-6 py-3 animate__animated animate__pulse animate__infinite"
+                   data-tippy-content="Редактировать данные клиента">Редактировать</a>
+                <a asp-page="./Index" class="btn btn-secondary px-6 py-3"
+                   data-tippy-content="Вернуться к списку клиентов">Назад к списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Tippy.js tooltips
+    tippy('[data-tippy-content]', {
+        placement: 'top',
+        animation: 'scale',
+        theme: 'light-border',
+        duration: 200
+    });
+</script>
+</body>
+</html>

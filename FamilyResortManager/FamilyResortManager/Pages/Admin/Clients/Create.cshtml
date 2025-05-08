@@ -1,0 +1,83 @@
+@page
+@model FamilyResortManager.Pages.Clients.CreateModel
+@{
+    ViewData["Title"] = "Добавить клиента";
+}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] – Family Resort Manager</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Animate.css CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <!-- Tippy.js CDN -->
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/clients.css" />
+</head>
+<body>
+<div class="container mx-auto p-6">
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+            Добавить клиента
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Name" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Name" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                           data-tippy-content="Введите имя клиента" />
+                    <span asp-validation-for="Input.Name" class="text-danger text-sm mt-1"></span>
+                </div>
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Email" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Email" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                           data-tippy-content="Введите email клиента" />
+                    <span asp-validation-for="Input.Email" class="text-danger text-sm mt-1"></span>
+                </div>
+                <div class="form-group mb-4">
+                    <label asp-for="Input.Phone" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <input asp-for="Input.Phone" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                           data-tippy-content="Введите телефон клиента" />
+                    <span asp-validation-for="Input.Phone" class="text-danger text-sm mt-1"></span>
+                </div>
+                <div class="form-group mb-6">
+                    <label asp-for="Input.Info" class="form-label block text-gray-700 font-medium mb-1"></label>
+                    <textarea asp-for="Input.Info" class="form-control w-full px-4 py-2 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+                              rows="4" data-tippy-content="Введите дополнительную информацию о клиенте"></textarea>
+                    <span asp-validation-for="Input.Info" class="text-danger text-sm mt-1"></span>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn btn-primary px-6 py-3 animate__animated animate__pulse animate__infinite"
+                            data-tippy-content="Сохранить нового клиента">Сохранить</button>
+                    <a asp-page="./Index" class="btn btn-secondary px-6 py-3"
+                       data-tippy-content="Вернуться к списку клиентов"
+                       onclick="return confirm('Вы уверены, что хотите отменить создание клиента?');">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Tippy.js tooltips
+    tippy('[data-tippy-content]', {
+        placement: 'top',
+        animation: 'scale',
+        theme: 'light-border',
+        duration: 200
+    });
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</body>
+</html>
