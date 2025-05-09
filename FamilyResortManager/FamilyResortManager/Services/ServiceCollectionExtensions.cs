@@ -31,6 +31,7 @@ namespace FamilyResortManager.Services
             services.AddScoped<ICleaningTaskService, CleaningTaskService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IAuditLogService, AuditLogService>();
+            services.AddScoped<EmailService>();
 
             // Валидаторы
             services.AddScoped<IValidator<RoomCreateRequestDto>, RoomCreateRequestDtoValidator>();

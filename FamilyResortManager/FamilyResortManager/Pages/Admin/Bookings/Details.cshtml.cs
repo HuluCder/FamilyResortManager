@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Threading.Tasks;
 using FamilyResortManager.Services.DTOs;
 using FamilyResortManager.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FamilyResortManager.Pages.Bookings
 {
+    [Authorize(Roles = "Administrator")]
     public class DetailsModel : PageModel
     {
         private readonly IBookingService _bookingService;

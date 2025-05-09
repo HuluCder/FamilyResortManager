@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="~/css/layout.css" />
     <link rel="stylesheet" href="~/css/calendar.css" />
 </head>
-<body>
+<body class="flex flex-col min-h-screen">
 <nav class="navbar bg-gradient-to-r from-blue-700 to-blue-800 text-white shadow-lg">
     <div class="container-fluid mx-auto flex items-center justify-between h-14 px-6">
         <!-- Логотип -->
@@ -82,13 +82,13 @@
                 <span class="text-yellow-300 px-3 text-sm font-medium">
                     @User.Identity.Name
                 </span>
-                <a href="/Identity/Account/LogoutPage" class="rounded-full bg-red-600 text-white px-4 py-2 text-sm font-semibold tracking-wide hover:bg-red-500 transition shadow-md">
+                <a href="/Identity/Account/Logout" class="rounded-full bg-red-600 text-white px-4 py-2 text-sm font-semibold tracking-wide hover:bg-red-500 transition shadow-md">
                     Выход
                 </a>
             }
             else
             {
-                <a href="/Identity/Account/LoginPage" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
+                <a href="/Identity/Account/Login" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
                     Вход
                 </a>
             }
@@ -142,9 +142,9 @@
     }
 </div>
 
-<div class="container mx-auto py-6">
+<main class="flex-grow container mx-auto py-6">
     @RenderBody()
-</div>
+</main>
 
 <footer class="bg-gray-900 text-white py-6">
     <div class="container mx-auto">
