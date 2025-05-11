@@ -286,26 +286,13 @@ body {
     width: 100%;
     border-radius: 8px;
 }
-
-.booking-link {
-    color: #f8f9fa;
-    text-decoration: none;
-    font-weight: 600;
-    transition: color 0.3s ease, transform 0.3s ease;
-}
-
-.booking-link:hover,
-.booking-link:focus {
-    color: #ffc107;
-    transform: scale(1.05);
-}
-
 .booking-link:visited {
     color: #f8f9fa;
 }
 
 /* ===== Calendar Cell Selection ===== */
 .calendar-cell {
+    position: relative; /* нужно для ::before и ::after */
     cursor: pointer;
     height: 70px;
     width: 70px;
@@ -409,7 +396,6 @@ body {
     }
 }
 
-/* ===== Responsive Styles ===== */
 @media (max-width: 768px) {
     .card-header {
         flex-direction: column;
@@ -419,10 +405,10 @@ body {
 
     .calendar-table th,
     .calendar-table td {
-        min-width: 50px;
-        height: 50px;
-        padding: 6px;
-        font-size: 0.8rem;
+        min-width: 40px; /* Уменьшено для компактности */
+        height: 40px;
+        padding: 4px;
+        font-size: 0.7rem;
     }
 
     .filters .flex {
@@ -439,6 +425,20 @@ body {
         padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
     }
+
+    .booking-link {
+        font-size: 0.65rem;
+        padding: 2px;
+    }
+
+    /* Уменьшаем размер текста в ячейках */
+    .room-number {
+        font-size: 0.9rem;
+    }
+
+    .room-type {
+        font-size: 0.75rem;
+    }
 }
 
 /* ===== Sticky Column Fix ===== */
@@ -449,4 +449,191 @@ body.modal-open {
 /* ===== Hidden Elements ===== */
 .calendar-hidden {
     display: none;
+}
+
+/* ===== Calendar Cell Styles ===== */
+.calendar-cell {
+    position: relative;
+    cursor: pointer;
+    height: 70px;
+    width: 70px;
+    padding: 8px;
+    vertical-align: middle;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.calendar-cell:hover {
+    background-color: #f1f5f9;
+    transform: scale(1.05);
+}
+
+/* Полностью забронированная ячейка */
+.booking-full {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    cursor: default;
+}
+
+.booking-full.pending {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+/* Комбинированная ячейка (въезд и выезд в один день) */
+.booking-combined {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    cursor: default;
+}
+
+.booking-combined.pending {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+/* День выезда (левая половина ячейки) */
+.booking-start-half::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    z-index: 1;
+}
+
+/* День въезда (правая половина ячейки) */
+.booking-end-half::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    z-index: 1;
+}
+
+/* Pending состояния */
+.booking-start-half.pending::before,
+.booking-end-half.pending::after {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+/* Ensure half-cells are clickable */
+.booking-start-half,
+.booking-end-half {
+    cursor: pointer;
+}
+
+/* Selected cell states */
+.calendar-cell.selected-start::after,
+.calendar-cell.selected-end::before {
+    box-shadow: inset 0 0 0 3px #10b981;
+    z-index: 2;
+}
+
+.selected-start,
+.selected-end {
+    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
+    animation: pulse 1.5s ease-in-out 3;
+}
+
+.selected-range {
+    background: #d1fae5;
+    transition: background-color 0.3s ease;
+}
+
+/* Booking link styles for admin mode */
+.booking-link {
+    position: relative;
+    z-index: 3;
+    display: block;
+    color: #ffffff; /* Улучшенная контрастность */
+    text-decoration: none;
+    font-weight: 600;
+    padding: 4px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Добавляем тень для читаемости */
+}
+
+.booking-link:hover,
+.booking-link:focus {
+    color: #ffdb4d; /* Более яркий цвет при наведении */
+    transform: scale(1.05);
+}
+
+.booking-link:visited {
+    color: #ffffff;
+}
+
+/* Responsive adjustments for booking links */
+@media (max-width: 768px) {
+    .booking-link {
+        font-size: 0.75rem;
+        padding: 2px;
+    }
+}
+
+/* Комбинированная бронь: выезд + въезд в один день */
+.booking-combined::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    z-index: 1;
+}
+
+.booking-combined::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    z-index: 1;
+}
+
+/* Ожидающая бронь (левая + правая) */
+.booking-combined.pending::before,
+.booking-combined.pending::after {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+.booking-combined-mixed::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--left-color);
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    z-index: 1;
+}
+
+.booking-combined-mixed::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--right-color);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    z-index: 1;
 }

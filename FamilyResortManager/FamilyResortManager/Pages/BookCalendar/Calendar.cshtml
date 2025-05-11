@@ -1,4 +1,5 @@
 @page
+@using FamilyResortManager.Data.DataBase.Models
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model FamilyResortManager.Pages.Bookings.CalendarModel
 @{
@@ -76,6 +77,20 @@
         </select>
       </div>
       <div class="calendar-container">
+        <div class="mt-6 flex gap-4 items-center text-sm text-gray-700">
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-blue-600 rounded"></div>
+            <span>Забронировано</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 bg-orange-400 rounded"></div>
+            <span>Ожидает подтверждения</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-4 h-4 border border-gray-400 rounded"></div>
+            <span>Свободно</span>
+          </div>
+        </div>
         <table class="calendar-table">
           <thead>
           <tr>
@@ -102,87 +117,150 @@
                   <span class="room-type">@room.Type</span>
                 </div>
               </td>
-              @{
-                var cursor = Model.StartDate.Date;
-                var roomBookings = Model.Bookings
-                  .Where(b => b.RoomId == room.Id)
-                  .OrderBy(b => b.CheckInDate)
-                  .ToList();
-                var roomPendingBookings = Model.PendingBookings
-                  .Where(b => b.RoomId == room.Id)
-                  .OrderBy(b => b.CheckInDate)
-                  .ToList();
-              }
-              @while (cursor <= Model.EndDate.Date)
-              {
-                var confirmedBk = roomBookings.FirstOrDefault(b =>
-                  b.CheckInDate.Date <= cursor && b.CheckOutDate.Date >= cursor);
-                var pendingBk = roomPendingBookings.FirstOrDefault(b =>
-                  b.CheckInDate.Date <= cursor && b.CheckOutDate.Date >= cursor);
-                if (confirmedBk != null)
+                @{
+                    var cursor = Model.StartDate.Date;
+                    var roomBookings = Model.Bookings
+                        .Where(b => b.RoomId == room.Id)
+                        .OrderBy(b => b.CheckInDate)
+                        .ToList();
+                    var roomPendingBookings = Model.PendingBookings
+                        .Where(b => b.RoomId == room.Id)
+                        .OrderBy(b => b.CheckInDate)
+                        .ToList();
+                }
+                @for (DateTime date = Model.StartDate.Date; date <= Model.EndDate.Date; date = date.AddDays(1))
                 {
-                  var from = confirmedBk.CheckInDate.Date < Model.StartDate.Date
-                    ? Model.StartDate.Date
-                    : confirmedBk.CheckInDate.Date;
-                  var to = confirmedBk.CheckOutDate.Date > Model.EndDate.Date
-                    ? Model.EndDate.Date
-                    : confirmedBk.CheckOutDate.Date;
-                  var span = (to - cursor).Days + 1;
-                  <td colspan="@span" class="calendar-booking booking-confirmed"
-                      data-date="@cursor.ToString("yyyy-MM-dd")"
-                      data-room-id="@room.Id">
-                    @if (Model.IsAdmin)
+                    var booking = roomBookings.FirstOrDefault(b =>
+                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
+
+                    var pending = roomPendingBookings.FirstOrDefault(b =>
+                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
+
+                    // Проверяем въезд и выезд для каждого бронирования
+                    var isCheckIn = booking?.CheckInDate.Date == date;
+                    var isCheckOut = booking?.CheckOutDate.Date == date;
+                    var isPendingCheckIn = pending?.CheckInDate.Date == date;
+                    var isPendingCheckOut = pending?.CheckOutDate.Date == date;
+                    var cssClass = "";
+                    var tooltip = "";
+                    var isClickable = true;
+                    var checkOutBooking = roomBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
+                    var checkInBooking = roomBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+                    var pendingCheckOutBooking = roomPendingBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
+                    var pendingCheckInBooking = roomPendingBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+
+                    var hasConfirmedOut = checkOutBooking != null;
+                    var hasPendingOut = pendingCheckOutBooking != null;
+                    var hasConfirmedIn = checkInBooking != null;
+                    var hasPendingIn = pendingCheckInBooking != null;
+
+                    // Проверяем комбинированное состояние (въезд и выезд в один день для одной брони)
+                    bool isCombined = false;
+                    Booking combinedBooking = null;
+
+                    if (booking != null && isCheckIn && isCheckOut)
                     {
-                      <a asp-page="/Admin/Bookings/Details"
-                         asp-route-id="@confirmedBk.Id"
-                         class="booking-link">
-                        @(confirmedBk.Client?.Name ?? "Клиент не указан")
-                      </a>
+                        isCombined = true;
+                        combinedBooking = booking;
+                    }
+                    else if (pending != null && isPendingCheckIn && isPendingCheckOut)
+                    {
+                        isCombined = true;
+                        combinedBooking = pending;
+                    }
+
+                    // Устанавливаем cssClass с использованием else if для предотвращения перезаписи
+                    if ((hasConfirmedOut || hasPendingOut) && (hasConfirmedIn || hasPendingIn))
+                    {
+                        cssClass = "booking-combined-mixed";
+                        tooltip = "";
+                        if (hasConfirmedOut)
+                            tooltip += $"Выезд: {checkOutBooking.CheckOutDate:dd.MM HH:mm}\nКлиент: {checkOutBooking.Client?.Name}\n";
+                        if (hasPendingOut)
+                            tooltip += $"Выезд (ожидание): {pendingCheckOutBooking.CheckOutDate:dd.MM HH:mm}\nКлиент: {pendingCheckOutBooking.Client?.Name}\n";
+
+                        if (hasConfirmedIn)
+                            tooltip += $"Заезд: {checkInBooking.CheckInDate:dd.MM HH:mm}\nКлиент: {checkInBooking.Client?.Name}";
+                        if (hasPendingIn)
+                            tooltip += $"Заезд (ожидание): {pendingCheckInBooking.CheckInDate:dd.MM HH:mm}\nКлиент: {pendingCheckInBooking.Client?.Name}";
+
+                        isClickable = false;
+                    }
+                    else if (isCombined)
+                    {
+                        cssClass = "booking-combined";
+                        if (combinedBooking?.Status == "Ожидание") cssClass += " pending";
+                        tooltip = $"Бронь: {combinedBooking?.CheckInDate:dd.MM HH:mm} → {combinedBooking?.CheckOutDate:dd.MM HH:mm}" +
+                                  (combinedBooking?.Client?.Name != null ? $"\nКлиент: {combinedBooking.Client.Name}" : "");
+                        isClickable = false;
+                    }
+                    else if (booking != null)
+                    {
+                        if (isCheckIn)
+                        {
+                            cssClass = "booking-end-half";
+                            tooltip = $"Заезд: {booking.CheckInDate:dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                        }
+                        else if (isCheckOut)
+                        {
+                            cssClass = "booking-start-half";
+                            tooltip = $"Выезд: {booking.CheckOutDate:dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                        }
+                        else
+                        {
+                            cssClass = "booking-full";
+                            tooltip = $"Бронь: {booking.CheckInDate:dd.MM HH:mm} → {booking.CheckOutDate:dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                            isClickable = false;
+                        }
+                    }
+                    else if (pending != null)
+                    {
+                        if (isPendingCheckIn)
+                        {
+                            cssClass = "booking-end-half pending";
+                            tooltip = $"Ожидает заезд: {pending.CheckInDate:dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                        }
+                        else if (isPendingCheckOut)
+                        {
+                            cssClass = "booking-start-half pending";
+                            tooltip = $"Ожидает выезд: {pending.CheckOutDate:dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                        }
+                        else
+                        {
+                            cssClass = "booking-full pending";
+                            tooltip = $"Ожидает: {pending.CheckInDate:dd.MM HH:mm} → {pending.CheckOutDate:dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                            isClickable = false;
+                        }
                     }
                     else
                     {
-                      <div class="booking-occupied"></div>
+                        cssClass = "";
+                        tooltip = "Свободно";
                     }
-                  </td>
-                  cursor = to.AddDays(1);
+
+                    <td class="calendar-cell @cssClass"
+                        data-date="@date.ToString("yyyy-MM-dd")"
+                        data-room-id="@room.Id"
+                        data-tippy-content="@tooltip"
+                        style="--left-color: @(hasPendingOut ? "#f97316" : "#3b82f6"); --right-color: @(hasPendingIn ? "#f97316" : "#3b82f6");"
+                        onclick="@(Model.IsAdmin || !isClickable ? "" : "selectDate(new Date('" + date.ToString("yyyy-MM-dd") + "'), " + room.Id + ")")">
+                        @if (Model.IsAdmin && (isCheckIn || isCheckOut || isPendingCheckIn || isPendingCheckOut || isCombined))
+                        {
+                            <a asp-page="/Admin/Bookings/Details"
+                               asp-route-id="@(booking?.Id ?? pending?.Id ?? combinedBooking?.Id)"
+                               class="booking-link">
+                                @(booking?.Client?.Name ?? pending?.Client?.Name ?? combinedBooking?.Client?.Name ?? "Клиент не указан")
+                                @if (pending != null || (combinedBooking?.Status == "Ожидание")) { <span>(Ожидание)</span> }
+                            </a>
+                        }
+                    </td>
                 }
-                else if (pendingBk != null)
-                {
-                  var from = pendingBk.CheckInDate.Date < Model.StartDate.Date
-                    ? Model.StartDate.Date
-                    : pendingBk.CheckInDate.Date;
-                  var to = pendingBk.CheckOutDate.Date > Model.EndDate.Date
-                    ? Model.EndDate.Date
-                    : pendingBk.CheckOutDate.Date;
-                  var span = (to - cursor).Days + 1;
-                  <td colspan="@span" class="calendar-booking booking-pending"
-                      data-date="@cursor.ToString("yyyy-MM-dd")"
-                      data-room-id="@room.Id">
-                    @if (Model.IsAdmin)
-                    {
-                      <a asp-page="/Admin/Bookings/Details"
-                         asp-route-id="@pendingBk.Id"
-                         class="booking-link"
-                         aria-label="Перейти к деталям ожидающего бронирования для @(pendingBk.Client?.Name ?? "клиента")">
-                        @(pendingBk.Client?.Name ?? "Клиент не указан") (Ожидание)
-                      </a>
-                    }
-                    else
-                    {
-                      <div class="booking-pending-indicator"></div>
-                    }
-                  </td>
-                  cursor = to.AddDays(1);
-                }
-                else
-                {
-                  <td class="calendar-cell @(cursor == DateTime.UtcNow.Date ? "today" : "")"
-                      data-date="@cursor.ToString("yyyy-MM-dd")"
-                      data-room-id="@room.Id"
-                      onclick="@(Model.IsAdmin ? "" : "selectDate(new Date('" + cursor.ToString("yyyy-MM-dd") + "'), " + room.Id + ")")"></td>
-                  cursor = cursor.AddDays(1);
-                }
-              }
             </tr>
           }
           </tbody>
@@ -282,424 +360,422 @@
 </div>
 
 @section Scripts {
-  <link rel="stylesheet" href="~/css/calendar.css" asp-append-version="true" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ru.js"></script>
-  <script src="https://unpkg.com/@@popperjs/core@2"></script>
-  <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/inputmask@5/dist/inputmask.min.js"></script>
-  <script>
-    // Initialize Flatpickr
-    document.addEventListener('DOMContentLoaded', function () {
-      flatpickr("#checkInDatePicker", {
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        locale: "ru",
-        onChange: function(selectedDates, dateStr) {
-          // Set minDate for check-out picker
-          const checkOutPicker = document.querySelector("#checkOutDatePicker")._flatpickr;
-          checkOutPicker.set("minDate", dateStr);
-        }
-      });
-
-      flatpickr("#checkOutDatePicker", {
-        dateFormat: "Y-m-d",
-        minDate: "today",
-        locale: "ru"
-      });
-
-      // Apply filters (date range and room type)
-      document.getElementById('applyFilters').addEventListener('click', function() {
-        const checkInDate = document.getElementById('checkInDatePicker').value;
-        const checkOutDate = document.getElementById('checkOutDatePicker').value;
-        const roomType = document.getElementById('roomTypeSelect').value;
-        const month = document.getElementById('monthSelect').value;
-        const year = document.getElementById('yearSelect').value;
-
-        if (checkInDate && checkOutDate) {
-          if (new Date(checkOutDate) <= new Date(checkInDate)) {
-            alert('Дата выезда должна быть позже даты въезда.');
-            return;
-          }
-        }
-
-        let url = `?month=${month}&year=${year}`;
-        if (checkInDate) url += `&checkInDate=${checkInDate}`;
-        if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
-        if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
-        window.location.href = url;
-      });
-
-      // Reset filters
-      document.getElementById('resetFilters').addEventListener('click', function() {
-        const month = document.getElementById('monthSelect').value;
-        const year = document.getElementById('yearSelect').value;
-        document.getElementById('checkInDatePicker').value = '';
-        document.getElementById('checkOutDatePicker').value = '';
-        document.getElementById('roomTypeSelect').value = '';
-        window.location.href = `?month=${month}&year=${year}`;
-      });
-
-      // Initialize Inputmask for phone number
-      Inputmask({
-        mask: ["+7 (999) 999-99-99", "8 (999) 999-99-99"],
-        keepStatic: true,
-        placeholder: "_",
-        showMaskOnHover: true,
-        showMaskOnFocus: true
-      }).mask("#clientPhone");
-
-      // Tippy.js initialization
-      if (typeof tippy === 'function') {
-        tippy('[data-tippy-content]');
-      }
-
-      // Equalize row heights
-      equalizeRowHeights();
-
-      // Bootstrap form validation
-      const form = document.getElementById('bookingForm');
-      form.addEventListener('submit', function (event) {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-      });
-
-      // Restore scroll on modal close
-      function restoreScroll() {
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-        document.body.classList.remove('modal-open');
-      }
-
-      const bookingModalElement = document.getElementById('bookingModal');
-      if (bookingModalElement) {
-        bookingModalElement.addEventListener('hidden.bs.modal', restoreScroll);
-      }
-
-      const successModalElement = document.getElementById('successModal');
-      if (successModalElement) {
-        successModalElement.addEventListener('hidden.bs.modal', restoreScroll);
-      }
-    });
-
-    function equalizeRowHeights() {
-      const rows = document.querySelectorAll('.calendar-table tbody tr');
-      let maxHeight = 0;
-      rows.forEach(row => {
-        const height = row.offsetHeight;
-        if (height > maxHeight) {
-          maxHeight = height;
-        }
-      });
-      rows.forEach(row => {
-        row.style.height = `${maxHeight}px`;
-      });
-    }
-
-    function navigateMonth(direction) {
-      const monthSelect = document.getElementById('monthSelect');
-      const yearSelect = document.getElementById('yearSelect');
-      let currentMonth = parseInt(monthSelect.value);
-      let currentYear = parseInt(yearSelect.value);
-      currentMonth += direction;
-      if (currentMonth > 12) {
-        currentMonth = 1;
-        currentYear++;
-      } else if (currentMonth < 1) {
-        currentMonth = 12;
-        currentYear--;
-      }
-      monthSelect.value = currentMonth;
-      yearSelect.value = currentYear;
-      updateCalendar();
-    }
-
-    function updateCalendar() {
-      const month = document.getElementById('monthSelect').value;
-      const year = document.getElementById('yearSelect').value;
-      const checkInDate = document.getElementById('checkInDatePicker').value;
-      const checkOutDate = document.getElementById('checkOutDatePicker').value;
-      const roomType = document.getElementById('roomTypeSelect').value;
-      let url = `?month=${month}&year=${year}`;
-      if (checkInDate) url += `&checkInDate=${checkInDate}`;
-      if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
-      if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
-      window.location.href = url;
-    }
-
-    let startDate = null;
-    let endDate = null;
-    let selectedRoomId = null;
-    let selectedRoomNumber = null;
-
-    function selectDate(date, roomId) {
-      if (date < new Date().setHours(0, 0, 0, 0)) {
-        alert('Нельзя выбрать дату в прошлом.');
-        return;
-      }
-      const cell = document.querySelector(`td[data-date="${date.toISOString().split('T')[0]}"][data-room-id="${roomId}"]`);
-      if (cell.querySelector('.booking-confirmed') || cell.querySelector('.booking-pending')) {
-        alert('Эта дата уже занята или находится в стадии рассмотрения.');
-        return;
-      }
-      if (!startDate) {
-        startDate = date;
-        selectedRoomId = roomId;
-        const roomRow = cell.closest('tr');
-        selectedRoomNumber = roomRow.querySelector('.room-number').textContent;
-        highlightCell(date, roomId, 'selected-start');
-        updateSelectionDisplay();
-      } else if (!endDate && date >= startDate && roomId === selectedRoomId) {
-        endDate = date;
-        highlightCell(date, roomId, 'selected-end');
-        highlightRange();
-        updateSelectionDisplay();
-        enableBookButton();
-      } else {
-        clearHighlights();
-        startDate = date;
-        endDate = null;
-        selectedRoomId = roomId;
-        const roomRow = cell.closest('tr');
-        selectedRoomNumber = roomRow.querySelector('.room-number').textContent;
-        highlightCell(date, roomId, 'selected-start');
-        updateSelectionDisplay();
-      }
-    }
-
-    function highlightCell(date, roomId, className) {
-      const dateString = date.toISOString().split('T')[0];
-      const cell = document.querySelector(`td[data-date="${dateString}"][data-room-id="${roomId}"]`);
-      if (cell) {
-        cell.classList.add(className);
-      }
-    }
-
-    function highlightRange() {
-      if (!startDate || !endDate || !selectedRoomId) return;
-      let currentDate = new Date(startDate);
-      while (currentDate <= endDate) {
-        if (currentDate > startDate && currentDate < endDate) {
-          highlightCell(currentDate, selectedRoomId, 'selected-range');
-        }
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-    }
-
-    function clearHighlights() {
-      document.querySelectorAll('.selected-start, .selected-end, .selected-range').forEach(el => {
-        el.classList.remove('selected-start', `selected-end`, 'selected-range');
-      });
-    }
-
-    function updateSelectionDisplay() {
-      const info = document.getElementById('selectionInfo');
-      if (startDate && !endDate) {
-        info.textContent = `Выбрана дата заезда: ${formatDate(startDate)}, комната №${selectedRoomNumber}`;
-      } else if (startDate && endDate) {
-        const daysCount = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-        info.textContent = `Выбран период: ${formatDate(startDate)} - ${formatDate(endDate)} (${daysCount} дней), комната №${selectedRoomNumber}`;
-      }
-    }
-
-    function enableBookButton() {
-      const bookButton = document.getElementById('openBookingModalBtn');
-      if (bookButton) {
-        bookButton.disabled = false;
-        bookButton.classList.remove('hidden');
-        bookButton.onclick = function () {
-          openBookingModal(selectedRoomId, startDate, endDate);
-        };
-      }
-    }
-
-    function openBookingModal(roomId, startDate, endDate) {
-      if (!startDate || !endDate || !roomId) {
-        console.error('Не все необходимые данные предоставлены для открытия модального окна');
-        return;
-      }
-
-      document.getElementById('modalRoomId').value = roomId;
-      document.getElementById('modalCheckInDate').value = startDate.toISOString().split('T')[0];
-      document.getElementById('modalCheckOutDate').value = endDate.toISOString().split('T')[0];
-      const daysCount = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
-      document.getElementById('modalDateRange').textContent =
-        `${formatDate(startDate)} - ${formatDate(endDate)} (${daysCount} дней)`;
-      document.getElementById('modalRoomNumber').textContent = selectedRoomNumber;
-
-      const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'), {
-        // Опция для отключения блокировки прокрутки в Bootstrap 5
-        scroll: true
-      });
-
-      bookingModal.show();
-
-      // Восстановление прокрутки после открытия модального окна
-      setTimeout(() => {
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = 'auto';
-        document.body.style.paddingRight = '0';
-      }, 50);
-
-      document.getElementById('clientName').focus();
-    }
-
-    // Дополнительно добавьте обработчик события для Modal
-    document.getElementById('bookingModal').addEventListener('shown.bs.modal', function () {
-      document.body.classList.remove('modal-open');
-      document.body.style.overflow = 'auto';
-      document.body.style.paddingRight = '0';
-    });
-
-
-    function formatDate(date) {
-      if (!(date instanceof Date)) {
-        date = new Date(date);
-      }
-      return date.toLocaleDateString('ru-RU');
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      const bookingModalElement = document.getElementById('bookingModal');
-      if (bookingModalElement) {
-        bookingModalElement.addEventListener('shown.bs.modal', function () {
-          document.body.classList.remove('modal-open');
-          document.body.style.paddingRight = '';
-          const modalBackdrops = document.querySelectorAll('.modal-backdrop');
-          modalBackdrops.forEach(backdrop => {
-            backdrop.style.zIndex = '1040';
-          });
-          bookingModalElement.style.zIndex = '1050';
-        });
-      }
-
-      const submitBtn = document.getElementById('submitBookingBtn');
-      if (submitBtn) {
-        submitBtn.addEventListener('click', async function () {
-          const form = document.getElementById('bookingForm');
-          const roomId = document.getElementById('modalRoomId').value;
-          const checkInDate = document.getElementById('modalCheckInDate').value;
-          const checkOutDate = document.getElementById('modalCheckOutDate').value;
-          const clientName = document.getElementById('clientName').value;
-          const clientEmail = document.getElementById('clientEmail').value;
-          const clientPhone = document.getElementById('clientPhone').value;
-
-          const overlap = existingBookings.some(b => {
-            if (parseInt(b.RoomId) !== parseInt(roomId)) return false;
-            const bStart = new Date(b.CheckInDate);
-            const bEnd = new Date(b.CheckOutDate);
-            const newStart = new Date(checkInDate);
-            const newEnd = new Date(checkOutDate);
-            return newStart < bEnd && newEnd > bStart;
-          });
-
-          if (overlap) {
-            alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
-            return;
-          }
-
-          if (!form.checkValidity()) {
-            form.classList.add('was-validated');
-            return;
-          }
-
-          try {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Отправка...';
-            const formData = new FormData();
-            formData.append('Input.RoomId', roomId);
-            formData.append('Input.CheckInDate', checkInDate);
-            formData.append('Input.CheckOutDate', checkOutDate);
-            formData.append('Input.Status', 'Новое');
-            formData.append('ClientName', clientName);
-            formData.append('ClientEmail', clientEmail);
-            formData.append('ClientPhone', clientPhone);
-
-            const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (antiForgeryToken) {
-              formData.append('__RequestVerificationToken', antiForgeryToken.value);
-            }
-
-            const response = await fetch('/Client/Bookings/Create?handler=CreateBooking', {
-              method: 'POST',
-              body: formData
+    <link rel="stylesheet" href="~/css/calendar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ru.js"></script>
+    <script src="https://unpkg.com/@@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/inputmask@5/dist/inputmask.min.js"></script>
+    <script>
+        // Initialize Flatpickr
+        document.addEventListener('DOMContentLoaded', function () {
+            flatpickr("#checkInDatePicker", {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                locale: "ru",
+                onChange: function(selectedDates, dateStr) {
+                    const checkOutPicker = document.querySelector("#checkOutDatePicker")._flatpickr;
+                    checkOutPicker.set("minDate", dateStr);
+                }
             });
 
-            if (response.redirected) {
-              window.location.href = response.url;
-              return;
+            flatpickr("#checkOutDatePicker", {
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                locale: "ru"
+            });
+
+            // Apply filters
+            document.getElementById('applyFilters').addEventListener('click', function() {
+                const checkInDate = document.getElementById('checkInDatePicker').value;
+                const checkOutDate = document.getElementById('checkOutDatePicker').value;
+                const roomType = document.getElementById('roomTypeSelect').value;
+                const month = document.getElementById('monthSelect').value;
+                const year = document.getElementById('yearSelect').value;
+
+                if (checkInDate && checkOutDate) {
+                    if (new Date(checkOutDate) <= new Date(checkInDate)) {
+                        alert('Дата выезда должна быть позже даты въезда.');
+                        return;
+                    }
+                }
+
+                let url = `?month=${month}&year=${year}`;
+                if (checkInDate) url += `&checkInDate=${checkInDate}`;
+                if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
+                if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
+                window.location.href = url;
+            });
+
+            // Reset filters
+            document.getElementById('resetFilters').addEventListener('click', function() {
+                const month = document.getElementById('monthSelect').value;
+                const year = document.getElementById('yearSelect').value;
+                document.getElementById('checkInDatePicker').value = '';
+                document.getElementById('checkOutDatePicker').value = '';
+                document.getElementById('roomTypeSelect').value = '';
+                window.location.href = `?month=${month}&year=${year}`;
+            });
+
+            // Initialize Inputmask for phone number
+            Inputmask({
+                mask: ["+7 (999) 999-99-99", "8 (999) 999-99-99"],
+                keepStatic: true,
+                placeholder: "_",
+                showMaskOnHover: true,
+                showMaskOnFocus: true
+            }).mask("#clientPhone");
+
+            // Tippy.js initialization
+            if (typeof tippy === 'function') {
+                tippy('[data-tippy-content]');
             }
 
-            const responseText = await response.text();
-            if (response.status === 409) {
-              alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
-              return;
+            // Equalize row heights
+            equalizeRowHeights();
+
+            // Bootstrap form validation
+            const form = document.getElementById('bookingForm');
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Restore scroll on modal close
+            function restoreScroll() {
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                document.body.classList.remove('modal-open');
             }
 
-            if (response.ok) {
-              console.log("Бронирование успешно создано!");
-              const bookingModalInstance = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
-              if (bookingModalInstance) {
-                bookingModalInstance.hide();
-              }
-              form.reset();
-              const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-              if (successModal) {
-                successModal.show();
-              }
-              if (typeof clearHighlights === 'function') {
-                clearHighlights();
-              }
-              startDate = null;
-              endDate = null;
-              selectedRoomId = null;
-              selectedRoomNumber = null;
-              const selectionInfoElement = document.getElementById('selectionInfo');
-              if (selectionInfoElement) {
-                selectionInfoElement.textContent = 'Не выбрано';
-              }
-              const bookButton = document.getElementById('openBookingModalBtn');
-              if (bookButton) {
-                bookButton.classList.add('calendar-hidden');
-                bookButton.disabled = true;
-              }
-              window.location.reload();
-            } else {
-              console.error('Ошибка запроса:', responseText);
-              if (responseText.includes('<span class="text-danger">')) {
-                alert('Пожалуйста, проверьте правильность введенных данных.');
-              } else {
-                alert('Произошла ошибка при бронировании. Пожалуйста, попробуйте снова позже.');
-              }
+            const bookingModalElement = document.getElementById('bookingModal');
+            if (bookingModalElement) {
+                bookingModalElement.addEventListener('hidden.bs.modal', restoreScroll);
             }
-          } catch (error) {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Забронировать';
-          }
+
+            const successModalElement = document.getElementById('successModal');
+            if (successModalElement) {
+                successModalElement.addEventListener('hidden.bs.modal', restoreScroll);
+            }
         });
-      }
 
-      const bookButton = document.getElementById('openBookingModalBtn');
-      if (bookButton) {
-        bookButton.classList.add('hidden');
-        bookButton.disabled = true;
-      }
-    });
+        function equalizeRowHeights() {
+            const rows = document.querySelectorAll('.calendar-table tbody tr');
+            let maxHeight = 0;
+            rows.forEach(row => {
+                const height = row.offsetHeight;
+                if (height > maxHeight) {
+                    maxHeight = height;
+                }
+            });
+            rows.forEach(row => {
+                row.style.height = `${maxHeight}px`;
+            });
+        }
 
-    const existingBookings = @Html.Raw(Json.Serialize(
-                               Model.Bookings
-                                 .Select(b => new {
-                                   RoomId = b.RoomId,
-                                   CheckInDate = b.CheckInDate.ToString("yyyy-MM-dd"),
-                                   CheckOutDate = b.CheckOutDate.ToString("yyyy-MM-dd")
-                                 })
-                             ));
-  </script>
+        function navigateMonth(direction) {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            let currentMonth = parseInt(monthSelect.value);
+            let currentYear = parseInt(yearSelect.value);
+            currentMonth += direction;
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            } else if (currentMonth < 1) {
+                currentMonth = 12;
+                currentYear--;
+            }
+            monthSelect.value = currentMonth;
+            yearSelect.value = currentYear;
+            updateCalendar();
+        }
+
+        function updateCalendar() {
+            const month = document.getElementById('monthSelect').value;
+            const year = document.getElementById('yearSelect').value;
+            const checkInDate = document.getElementById('checkInDatePicker').value;
+            const checkOutDate = document.getElementById('checkOutDatePicker').value;
+            const roomType = document.getElementById('roomTypeSelect').value;
+            let url = `?month=${month}&year=${year}`;
+            if (checkInDate) url += `&checkInDate=${checkInDate}`;
+            if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
+            if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
+            window.location.href = url;
+        }
+
+        let startDate = null;
+        let endDate = null;
+        let selectedRoomId = null;
+        let selectedRoomNumber = null;
+
+        function selectDate(date, roomId) {
+            if (date < new Date().setHours(0, 0, 0, 0)) {
+                alert('Нельзя выбрать дату в прошлом.');
+                return;
+            }
+
+            const cell = document.querySelector(
+                `td[data-date="${date.toISOString().split('T')[0]}"][data-room-id="${roomId}"]`
+            );
+
+            const isFull = cell.classList.contains("booking-full") || cell.classList.contains("booking-full pending");
+            if (isFull) {
+                alert("Эта дата полностью занята.");
+                return;
+            }
+
+            if (!startDate) {
+                startDate = new Date(date);
+                startDate.setHours(13, 0, 0, 0);
+                selectedRoomId = roomId;
+                const roomRow = cell.closest("tr");
+                selectedRoomNumber = roomRow.querySelector(".room-number").textContent;
+                highlightCell(date, roomId, "selected-start");
+                updateSelectionDisplay();
+            } else if (!endDate && date >= startDate && roomId === selectedRoomId) {
+                endDate = new Date(date);
+                endDate.setHours(10, 0, 0, 0);
+                highlightCell(date, roomId, "selected-end");
+                highlightRange();
+                updateSelectionDisplay();
+                enableBookButton();
+            } else {
+                clearHighlights();
+                startDate = new Date(date);
+                startDate.setHours(13, 0, 0, 0);
+                endDate = null;
+                selectedRoomId = roomId;
+                const roomRow = cell.closest("tr");
+                selectedRoomNumber = roomRow.querySelector(".room-number").textContent;
+                highlightCell(date, roomId, "selected-start");
+                updateSelectionDisplay();
+            }
+        }
+
+        function highlightCell(date, roomId, className) {
+            const dateString = date.toISOString().split('T')[0];
+            const cell = document.querySelector(`td[data-date="${dateString}"][data-room-id="${roomId}"]`);
+            if (cell) {
+                cell.classList.add(className);
+            }
+        }
+
+        function highlightRange() {
+            if (!startDate || !endDate || !selectedRoomId) return;
+
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                const isStart = currentDate.getTime() === startDate.getTime();
+                const isEnd = currentDate.getTime() === endDate.getTime();
+                if (!isStart && !isEnd) {
+                    highlightCell(currentDate, selectedRoomId, 'selected-range');
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+
+        function clearHighlights() {
+            document.querySelectorAll('.selected-start, .selected-end, .selected-range')
+                .forEach(el => {
+                    el.classList.remove('selected-start', 'selected-end', 'selected-range');
+                });
+        }
+
+        function updateSelectionDisplay() {
+            const info = document.getElementById('selectionInfo');
+            if (startDate && !endDate) {
+                info.textContent = `Выбрана дата заезда: ${formatDateTime(startDate)}, комната №${selectedRoomNumber}`;
+            } else if (startDate && endDate) {
+                const daysCount = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                info.textContent = `Выбран период: ${formatDateTime(startDate)} - ${formatDateTime(endDate)} (${daysCount} дней), комната №${selectedRoomNumber}`;
+            }
+        }
+
+        function enableBookButton() {
+            const bookButton = document.getElementById('openBookingModalBtn');
+            if (bookButton) {
+                bookButton.disabled = false;
+                bookButton.classList.remove('hidden');
+                bookButton.onclick = function () {
+                    openBookingModal(selectedRoomId, startDate, endDate);
+                };
+            }
+        }
+
+        function openBookingModal(roomId, startDate, endDate) {
+            if (!startDate || !endDate || !roomId) {
+                console.error('Не все необходимые данные предоставлены для открытия модального окна');
+                return;
+            }
+
+            document.getElementById('modalRoomId').value = roomId;
+            document.getElementById('modalCheckInDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('modalCheckOutDate').value = endDate.toISOString().split('T')[0];
+            const daysCount = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('modalDateRange').textContent =
+                `${formatDateTime(startDate)} - ${formatDateTime(endDate)} (${daysCount} дней)`;
+            document.getElementById('modalRoomNumber').textContent = selectedRoomNumber;
+
+            const bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'), {
+                scroll: true
+            });
+
+            bookingModal.show();
+
+            setTimeout(() => {
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = 'auto';
+                document.body.style.paddingRight = '0';
+            }, 50);
+
+            document.getElementById('clientName').focus();
+        }
+
+        function formatDateTime(date) {
+            if (!(date instanceof Date)) {
+                date = new Date(date);
+            }
+            return date.toLocaleString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        document.getElementById('submitBookingBtn').addEventListener('click', async function () {
+            const submitBtn = this;
+            const form = document.getElementById('bookingForm');
+            const roomId = document.getElementById('modalRoomId').value;
+            const checkInDate = new Date(document.getElementById('modalCheckInDate').value);
+            checkInDate.setHours(13, 0, 0, 0);
+            const checkOutDate = new Date(document.getElementById('modalCheckOutDate').value);
+            checkOutDate.setHours(10, 0, 0, 0);
+            const clientName = document.getElementById('clientName').value;
+            const clientEmail = document.getElementById('clientEmail').value;
+            const clientPhone = document.getElementById('clientPhone').value;
+
+            // Проверка пересечений с учетом времени
+            const overlap = existingBookings.some(b => {
+                if (parseInt(b.RoomId) !== parseInt(roomId)) return false;
+                const bStart = new Date(b.CheckInDate);
+                const bEnd = new Date(b.CheckOutDate);
+                const newStart = checkInDate;
+                const newEnd = checkOutDate;
+                return newStart < bEnd && newEnd > bStart;
+            });
+
+            if (overlap) {
+                alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
+                clearHighlights();
+                startDate = null;
+                endDate = null;
+                selectedRoomId = null;
+                selectedRoomNumber = null;
+                document.getElementById('selectionInfo').textContent = 'Не выбрано';
+                return;
+            }
+
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+                const formData = new FormData();
+                formData.append('Input.RoomId', roomId);
+                // Явное преобразование в UTC ISO-строку
+                formData.append('Input.CheckInDate', checkInDate.toISOString());
+                formData.append('Input.CheckOutDate', checkOutDate.toISOString());
+                formData.append('ClientName', clientName);
+                formData.append('ClientEmail', clientEmail);
+                formData.append('ClientPhone', clientPhone);
+
+                const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (antiForgeryToken) {
+                    formData.append('__RequestVerificationToken', antiForgeryToken.value);
+                }
+
+                const response = await fetch('/Client/Bookings/Create?handler=CreateBooking', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const responseText = await response.text();
+                if (response.status === 409) {
+                    alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
+                    clearHighlights();
+                    startDate = null;
+                    endDate = null;
+                    selectedRoomId = null;
+                    selectedRoomNumber = null;
+                    document.getElementById('selectionInfo').textContent = 'Не выбрано';
+                    return;
+                }
+
+                if (response.ok) {
+                    console.log("Бронирование успешно создано!");
+                    const bookingModalInstance = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
+                    if (bookingModalInstance) {
+                        bookingModalInstance.hide();
+                    }
+                    form.reset();
+                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                    if (successModal) {
+                        successModal.show();
+                    }
+                    clearHighlights();
+                    startDate = null;
+                    endDate = null;
+                    selectedRoomId = null;
+                    selectedRoomNumber = null;
+                    document.getElementById('selectionInfo').textContent = 'Не выбрано';
+                    const bookButton = document.getElementById('openBookingModalBtn');
+                    if (bookButton) {
+                        bookButton.classList.add('hidden');
+                        bookButton.disabled = true;
+                    }
+                    window.location.reload();
+                } else {
+                    console.error('Ошибка запроса:', responseText);
+                    alert('Произошла ошибка при бронировании. Пожалуйста, попробуйте снова позже.');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить заявку';
+            }
+});
+
+        const bookButton = document.getElementById('openBookingModalBtn');
+        if (bookButton) {
+            bookButton.classList.add('hidden');
+            bookButton.disabled = true;
+        }
+
+        // Обновленные existingBookings с учетом времени
+        const existingBookings = @Html.Raw(Json.Serialize(
+            Model.Bookings.Concat(Model.PendingBookings)
+                .Select(b => new {
+                    RoomId = b.RoomId,
+                    CheckInDate = b.CheckInDate.ToString("o"),
+                    CheckOutDate = b.CheckOutDate.ToString("o")
+                })
+        ));
+    </script>
 }

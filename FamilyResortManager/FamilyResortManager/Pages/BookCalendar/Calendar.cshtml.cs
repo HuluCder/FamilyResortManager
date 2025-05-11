@@ -29,8 +29,7 @@ namespace FamilyResortManager.Pages.Bookings
         public int SelectedYear { get; set; }
         public string SelectedRoomType { get; set; }
 
-        public async Task OnGetAsync(int? month, int? year, string checkInDate = null, string checkOutDate = null,
-            string roomType = null)
+        public async Task OnGetAsync(int? month, int? year, string checkInDate = null, string checkOutDate = null, string roomType = null)
         {
             SelectedMonth = month ?? DateTime.UtcNow.Month;
             SelectedYear = year ?? DateTime.UtcNow.Year;
@@ -39,16 +38,17 @@ namespace FamilyResortManager.Pages.Bookings
             StartDate = new DateTime(SelectedYear, SelectedMonth, 1, 0, 0, 0, DateTimeKind.Utc);
             EndDate = StartDate.AddMonths(1).AddDays(-1);
 
-            // Load all rooms initially
+            // Load all rooms
             var allRooms = await _context.Rooms.ToListAsync();
 
-            // Load bookings within the calendar range
+            // Load bookings within the calendar range, excluding cancelled
             Bookings = await _context.Bookings
                 .Include(b => b.Room)
                 .Include(b => b.Client)
                 .Where(b =>
-                    (b.CheckInDate <= EndDate.AddHours(23).AddMinutes(59)) &&
-                    (b.CheckOutDate >= StartDate))
+                    b.Status != "Отменено" &&
+                    b.CheckInDate <= EndDate.AddDays(1).AddHours(10) &&
+                    b.CheckOutDate >= StartDate.AddHours(13))
                 .ToListAsync();
 
             IsAdmin = User.IsInRole("Administrator");
@@ -71,22 +71,18 @@ namespace FamilyResortManager.Pages.Bookings
                 DateTime.TryParse(checkOutDate, out DateTime checkOut) &&
                 checkOut > checkIn)
             {
-                // Adjust times for check-in (13:00) and check-out (10:00)
                 checkIn = checkIn.Date.AddHours(13);
                 checkOut = checkOut.Date.AddHours(10);
 
-                // Find rooms that have no overlapping bookings
                 filteredRooms = filteredRooms.Where(room => !Bookings.Any(b =>
-                                                                b.RoomId == room.Id &&
-                                                                b.CheckInDate < checkOut &&
-                                                                b.CheckOutDate > checkIn) &&
-                                                            !PendingBookings.Any(b =>
-                                                                b.RoomId == room.Id &&
-                                                                b.CheckInDate < checkOut &&
-                                                                b.CheckOutDate > checkIn));
+                    b.RoomId == room.Id &&
+                    b.CheckInDate < checkOut && b.CheckOutDate > checkIn) &&
+                    !PendingBookings.Any(b =>
+                        b.RoomId == room.Id &&
+                        b.CheckInDate < checkOut && b.CheckOutDate > checkIn));
             }
 
-            Rooms = filteredRooms.ToList();
-        }
+            Rooms = filteredRooms.OrderBy(r => r.Number).ToList();
+    }
     }
 }
