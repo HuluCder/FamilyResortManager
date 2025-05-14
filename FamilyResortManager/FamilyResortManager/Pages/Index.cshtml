@@ -2,48 +2,109 @@
 @model FamilyResortManager.Pages.IndexModel
 @{
     ViewData["Title"] = "Главная";
+    Layout = "_Layout";
 }
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"] – Family Resort Manager</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Animate.css CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-    <!-- Tippy.js CDN -->
-    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
-    <script src="https://unpkg.com/tippy.js@6"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="~/css/index.css"/>
-</head>
-<body class="bg-gray-100">
+
 <!-- Hero Section -->
 <section class="hero animate__animated animate__fadeIn">
     <div class="container mx-auto px-6 z-10">
         <div class="max-w-3xl mx-auto">
             <h1 class="text-4xl md:text-7xl font-bold mb-6 animate__animated animate__zoomIn" style="text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-                Family Resort Manager
+                Сары-Арка
             </h1>
             <p class="text-xl md:text-2xl mb-8 animate__animated animate__fadeInUp animate__delay-1s" style="text-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                Управляйте вашим семейным курортом с непревзойденной легкостью, комфортом и эффективностью
+                Добро пожаловать в комплекс семейного отдыха на живописном озере Алаколь
             </p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <a asp-page="/Rooms/Index" class="btn-primary animate__animated animate__pulse animate__infinite animate__slower" data-tippy-content="Начать управление номерами">
-                    <i class="fas fa-door-open mr-2"></i> Перейти к номерам
+                <a asp-page="/Rooms/Index" class="btn-primary animate__animated animate__pulse animate__infinite animate__slower" data-tippy-content="Посмотреть доступные номера">
+                    <i class="fas fa-door-open mr-2"></i> Забронировать номер
                 </a>
-                <a href="#features" class="btn-primary bg-white text-gray-800 hover:bg-gray-100 animate__animated animate__fadeIn animate__delay-1s">
-                    <i class="fas fa-info-circle mr-2"></i> Узнать больше
+                <a href="#rooms" class="btn-primary bg-white text-gray-800 hover:bg-gray-100 animate__animated animate__fadeIn animate__delay-1s">
+                    <i class="fas fa-info-circle mr-2"></i> Наши номера
                 </a>
             </div>
             <div class="mt-12 hidden md:block">
                 <i class="fas fa-chevron-down text-3xl animate__animated animate__fadeInDown animate__delay-2s animate__infinite animate__slower"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Rooms Section -->
+<section id="rooms" class="py-24 bg-gray-50">
+    <div class="container mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="section-title animate__animated animate__fadeIn">
+                Наши номера
+            </h2>
+            <p class="text-gray-600 text-xl max-w-3xl mx-auto">
+                Выберите идеальный вариант размещения для вашего отдыха на озере Алаколь
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <!-- Standart -->
+            <div class="room-card animate__animated animate__fadeIn">
+                <img src="/media/Standart.jpg" alt="Стандарт" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Стандарт</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 20,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Comfort -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-1s">
+                <img src="/media/Comfort.jpg" alt="Комфорт" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Комфорт</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 23,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Family Standart -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-2s">
+                <img src="/media/Family_Standart.jpg" alt="Семейный Стандарт" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Семейный Стандарт</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 21,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Family Comfort -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-3s">
+                <img src="/media/Family_Comfort.jpg" alt="Семейный Комфорт" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Семейный Комфорт</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 24,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Luks -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-4s">
+                <img src="/media/Luks.jpg" alt="Люкс" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Люкс</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 24,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Poluluks -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-5s">
+                <img src="/media/Poluluks.jpg" alt="Полулюкс" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Полулюкс</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 65,000 ₸/сутки</p>
+                </div>
+            </div>
+
+            <!-- Kottej -->
+            <div class="room-card animate__animated animate__fadeIn animate__delay-6s">
+                <img src="/media/Kottej.jpg" alt="Коттедж" class="w-full object-contain rounded-t-lg">
+                <div class="p-6 bg-white rounded-b-lg shadow-lg">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-4">Коттедж</h3>
+                    <p class="text-gray-800 font-semibold">Цена: от 140,000 ₸/сутки</p>
+                </div>
             </div>
         </div>
     </div>
@@ -54,85 +115,46 @@
     <div class="container mx-auto px-6">
         <div class="text-center mb-16">
             <h2 class="section-title animate__animated animate__fadeIn">
-                Почему выбирают нас?
+                Почему выбирают Сары-Арка?
             </h2>
             <p class="text-gray-600 text-xl max-w-3xl mx-auto">
-                Комплексное решение для эффективного управления всеми аспектами вашего курортного бизнеса
+                Отдых на озере Алаколь с комфортом и заботой о каждой детали
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
             <div class="feature-card animate__animated animate__fadeInLeft">
                 <div class="feature-icon">
-                    <i class="fas fa-bed"></i>
+                    <i class="fas fa-water"></i>
                 </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Управление номерами</h3>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Озеро Алаколь</h3>
                 <p class="text-gray-600 text-center">
-                    Легко добавляйте, редактируйте и отслеживайте статус номеров вашего курорта. Наглядная визуализация занятости и доступности.
+                    Наслаждайтесь целебными водами и живописными пейзажами уникального озера.
                 </p>
             </div>
 
             <div class="feature-card animate__animated animate__fadeInUp animate__delay-1s">
                 <div class="feature-icon">
-                    <i class="fas fa-calendar-check"></i>
+                    <i class="fas fa-utensils"></i>
                 </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Бронирования</h3>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Ресторан</h3>
                 <p class="text-gray-600 text-center">
-                    Управляйте бронированиями в реальном времени, избегайте накладок и максимизируйте заполняемость вашего курорта.
+                    Вкусные блюда из свежих местных продуктов для всей семьи.
                 </p>
             </div>
 
             <div class="feature-card animate__animated animate__fadeInRight animate__delay-2s">
                 <div class="feature-icon">
-                    <i class="fas fa-chart-line"></i>
+                    <i class="fas fa-child"></i>
                 </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Аналитика</h3>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Детская зона</h3>
                 <p class="text-gray-600 text-center">
-                    Подробные отчеты и аналитика помогут принимать обоснованные бизнес-решения и увеличить прибыльность вашего курорта.
-                </p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div class="feature-card animate__animated animate__fadeInLeft animate__delay-3s">
-                <div class="feature-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Управление гостями</h3>
-                <p class="text-gray-600 text-center">
-                    Храните и управляйте информацией о постоянных гостях, предпочтениях и истории пребывания.
-                </p>
-            </div>
-
-            <div class="feature-card animate__animated animate__fadeInUp animate__delay-4s">
-                <div class="feature-icon">
-                    <i class="fas fa-concierge-bell"></i>
-                </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Сервисы и услуги</h3>
-                <p class="text-gray-600 text-center">
-                    Управляйте дополнительными услугами и сервисами для повышения комфорта ваших гостей.
-                </p>
-            </div>
-
-            <div class="feature-card animate__animated animate__fadeInRight animate__delay-5s">
-                <div class="feature-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Мобильный доступ</h3>
-                <p class="text-gray-600 text-center">
-                    Доступ ко всем функциям системы с любого устройства в любое время и в любом месте.
+                    Безопасные игровые площадки и анимация для детей всех возрастов.
                 </p>
             </div>
         </div>
     </div>
 </section>
-
-<!-- Stats Section -->
-<div class="wave-divider">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" fill="#f9fafb">
-        <path d="M0,64L48,69.3C96,75,192,85,288,117.3C384,149,480,203,576,197.3C672,192,768,128,864,106.7C960,85,1056,107,1152,122.7C1248,139,1344,149,1392,154.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-    </svg>
-</div>
 
 <section class="py-20 bg-gray-100">
     <div class="container mx-auto px-6">
@@ -141,29 +163,29 @@
                 Наши достижения
             </h2>
             <p class="text-gray-600 text-xl max-w-3xl mx-auto">
-                Цифры, которые говорят сами за себя
+                Цифры, которые говорят о нашем качестве
             </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="stats-card animate__animated animate__fadeIn">
-                <div class="stats-number float-animation">500+</div>
-                <div class="text-gray-600 font-medium">Курортов используют нашу систему</div>
+                <div class="stats-number float-animation">1000+</div>
+                <div class="text-gray-600 font-medium">Счастливых гостей ежегодно</div>
             </div>
 
             <div class="stats-card animate__animated animate__fadeIn animate__delay-1s">
-                <div class="stats-number float-animation">98%</div>
-                <div class="text-gray-600 font-medium">Уровень удовлетворенности клиентов</div>
+                <div class="stats-number float-animation">95%</div>
+                <div class="text-gray-600 font-medium">Гостей возвращаются снова</div>
             </div>
 
             <div class="stats-card animate__animated animate__fadeIn animate__delay-2s">
-                <div class="stats-number float-animation">30%</div>
-                <div class="text-gray-600 font-medium">Средний рост прибыли после внедрения</div>
+                <div class="stats-number float-animation">50+</div>
+                <div class="text-gray-600 font-medium">Сотрудников для вашего комфорта</div>
             </div>
 
             <div class="stats-card animate__animated animate__fadeIn animate__delay-3s">
                 <div class="stats-number float-animation">24/7</div>
-                <div class="text-gray-600 font-medium">Техническая поддержка</div>
+                <div class="text-gray-600 font-medium">Обслуживание гостей</div>
             </div>
         </div>
     </div>
@@ -174,49 +196,49 @@
     <div class="container mx-auto px-6">
         <div class="text-center mb-16">
             <h2 class="section-title animate__animated animate__fadeIn">
-                Что говорят наши клиенты
+                Что говорят наши гости
             </h2>
             <p class="text-gray-600 text-xl max-w-3xl mx-auto">
-                Отзывы владельцев курортов, которые уже используют нашу систему
+                Отзывы тех, кто уже отдыхал в Сары-Арка
             </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             <div class="testimonial-card animate__animated animate__fadeIn">
                 <p class="italic text-gray-600 mb-6">
-                    "Family Resort Manager полностью изменил подход к управлению нашим курортом. Теперь у нас больше времени на гостей и меньше на бумажную работу."
+                    "Прекрасное место для семейного отдыха! Чистые номера, вкусная еда и потрясающий вид на озеро."
                 </p>
                 <div class="flex items-center">
-                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Анна М." class="avatar">
+                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Айгуль К." class="avatar">
                     <div class="ml-4">
-                        <div class="font-semibold text-gray-800">Анна М.</div>
-                        <div class="text-sm text-gray-500">Директор курорта "Морской бриз"</div>
+                        <div class="font-semibold text-gray-800">Айгуль К.</div>
+                        <div class="text-sm text-gray-500">Гость, Алматы</div>
                     </div>
                 </div>
             </div>
 
             <div class="testimonial-card animate__animated animate__fadeIn animate__delay-1s">
                 <p class="italic text-gray-600 mb-6">
-                    "Внедрение системы помогло нам увеличить заполняемость на 40% и значительно упростить процесс бронирования. Очень рекомендую!"
+                    "Дети были в восторге от игровой зоны, а мы наслаждались спокойствием и природой."
                 </p>
                 <div class="flex items-center">
-                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Павел С." class="avatar">
+                    <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Нурлан Т." class="avatar">
                     <div class="ml-4">
-                        <div class="font-semibold text-gray-800">Павел С.</div>
-                        <div class="text-sm text-gray-500">Владелец "Горный приют"</div>
+                        <div class="font-semibold text-gray-800">Нурлан Т.</div>
+                        <div class="text-sm text-gray-500">Гость, Нур-Султан</div>
                     </div>
                 </div>
             </div>
 
             <div class="testimonial-card animate__animated animate__fadeIn animate__delay-2s">
                 <p class="italic text-gray-600 mb-6">
-                    "Лучшее решение для семейного бизнеса! Интуитивно понятный интерфейс и отличная поддержка. Наши сотрудники освоили систему за один день."
+                    "Люкс превзошел ожидания! Персонал очень внимательный, вернемся снова."
                 </p>
                 <div class="flex items-center">
-                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Елена К." class="avatar">
+                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Динара С." class="avatar">
                     <div class="ml-4">
-                        <div class="font-semibold text-gray-800">Елена К.</div>
-                        <div class="text-sm text-gray-500">Управляющая "Лесная сказка"</div>
+                        <div class="font-semibold text-gray-800">Динара С.</div>
+                        <div class="text-sm text-gray-500">Гость, Караганда</div>
                     </div>
                 </div>
             </div>
@@ -229,142 +251,54 @@
     <div class="container mx-auto px-6 text-center">
         <div class="max-w-4xl mx-auto">
             <h2 class="text-4xl font-bold text-gray-800 mb-6 animate__animated animate__fadeIn">
-                Готовы начать?
+                Планируете отдых?
             </h2>
             <p class="text-xl text-gray-600 mb-10 animate__animated animate__fadeIn animate__delay-1s">
-                Присоединяйтесь к сотням успешных курортов, которые уже используют Family Resort Manager
+                Забронируйте номер в Сары-Арка и насладитесь незабываемым отдыхом на озере Алаколь
             </p>
-            <a asp-page="/Rooms/Index" class="btn-primary text-lg font-semibold animate__animated animate__pulse animate__infinite animate__slower">
-                <i class="fas fa-rocket mr-2"></i> Начать сейчас
+            <a asp-page="/BookCalendar/Calendar" class="btn-primary text-lg font-semibold animate__animated animate__pulse animate__infinite animate__slower">
+                <i class="fas fa-rocket mr-2"></i> Забронировать сейчас
             </a>
         </div>
     </div>
 </section>
 
-<!-- Footer -->
-<footer class="footer">
-    <div class="container mx-auto px-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-16">
-            <div>
-                <h3 class="text-2xl font-bold mb-6">Family Resort Manager</h3>
-                <p class="text-blue-100 mb-6">
-                    Комплексное решение для эффективного управления вашим курортным бизнесом.
-                </p>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-white text-xl hover:text-blue-200 transition-colors"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-white text-xl hover:text-blue-200 transition-colors"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white text-xl hover:text-blue-200 transition-colors"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white text-xl hover:text-blue-200 transition-colors"><i class="fab fa-linkedin"></i></a>
-                </div>
-            </div>
+@section Scripts {
+    <link rel="stylesheet" href="~/css/index.css" />
+    <link href="https://unpkg.com/tippy.js@6/dist/tippy.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <script>
+        // Initialize Tippy.js tooltips
+        tippy('[data-tippy-content]');
 
-            <div>
-                <h4 class="text-lg font-semibold mb-6">Быстрые ссылки</h4>
-                <ul class="space-y-3">
-                    <li><a href="#" class="text-blue-100 hover:text-white transition-colors">Главная</a></li>
-                    <li><a href="#features" class="text-blue-100 hover:text-white transition-colors">Возможности</a></li>
-                    <li><a asp-page="/Rooms/Index" class="text-blue-100 hover:text-white transition-colors">Номера</a></li>
-                    <li><a href="#" class="text-blue-100 hover:text-white transition-colors">О нас</a></li>
-                    <li><a href="#" class="text-blue-100 hover:text-white transition-colors">Контакты</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-lg font-semibold mb-6">Контакты</h4>
-                <ul class="space-y-3">
-                    <li class="flex items-start">
-                        <i class="fas fa-map-marker-alt mt-1 mr-3 text-blue-200"></i>
-                        <span class="text-blue-100">ул. Курортная, 123, Москва, Россия</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-phone mt-1 mr-3 text-blue-200"></i>
-                        <span class="text-blue-100">+7 (495) 123-45-67</span>
-                    </li>
-                    <li class="flex items-start">
-                        <i class="fas fa-envelope mt-1 mr-3 text-blue-200"></i>
-                        <span class="text-blue-100">info@familyresort.ru</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-lg font-semibold mb-6">Подписаться на новости</h4>
-                <p class="text-blue-100 mb-4">
-                    Будьте в курсе последних новостей и обновлений
-                </p>
-                <div class="flex">
-                    <input type="email" placeholder="Ваш email" class="px-4 py-2 rounded-l-lg w-full focus:outline-none">
-                    <button class="bg-white text-blue-600 px-4 py-2 rounded-r-lg hover:bg-blue-50 transition-colors">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="border-t border-blue-400 pt-8">
-            <p class="text-center text-blue-200">
-                &copy; @DateTime.Now.Year Family Resort Manager. Все права защищены.
-            </p>
-        </div>
-    </div>
-</footer>
-
-<!-- Scroll to top button -->
-<div class="scroll-top" id="scrollTop">
-    <i class="fas fa-chevron-up"></i>
-</div>
-
-<!-- JavaScript -->
-<script>
-    // Initialize Tippy.js tooltips
-    tippy('[data-tippy-content]');
-
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
             });
         });
-    });
 
-    // Scroll to top button
-    const scrollTopBtn = document.getElementById('scrollTop');
+        // Animate elements when they come into view
+        const animateOnScroll = () => {
+            const elements = document.querySelectorAll('.animate__animated:not(.animate__infinite)');
 
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            scrollTopBtn.classList.add('visible');
-        } else {
-            scrollTopBtn.classList.remove('visible');
-        }
-    });
+            elements.forEach(element => {
+                const elementPosition = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
 
-    scrollTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-    });
+                if (elementPosition < windowHeight - 100) {
+                    const animationClass = element.className.match(/animate__[a-zA-Z]+(?:\s|$)/)[0].trim();
+                    element.style.visibility = 'visible';
+                    element.classList.add('animate__' + animationClass.replace('animate__', ''));
+                }
+            });
+        };
 
-    // Animate elements when they come into view
-    const animateOnScroll = () => {
-        const elements = document.querySelectorAll('.animate__animated:not(.animate__infinite)');
-
-        elements.forEach(element => {
-            const elementPosition = element.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-
-            if (elementPosition < windowHeight - 100) {
-                const animationClass = element.className.match(/animate__[a-zA-Z]+(?:\s|$)/)[0].trim();
-                element.style.visibility = 'visible';
-                element.classList.add('animate__' + animationClass.replace('animate__', ''));
-            }
-        });
-    };
-
-    window.addEventListener('scroll', animateOnScroll);
-    window.addEventListener('load', animateOnScroll);
-</script>
-</body>
-</html>
+        window.addEventListener('scroll', animateOnScroll);
+        window.addEventListener('load', animateOnScroll);
+    </script>
+}

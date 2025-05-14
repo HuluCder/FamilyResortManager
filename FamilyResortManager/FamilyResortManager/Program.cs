@@ -59,6 +59,11 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Administrator", "Employee"));
 });
 
+builder.Services.AddSingleton(new TelegramNotifier(
+    botToken: "7597481026:AAFTjqO1ijk7osMZfqAyYXAsodCh3iuQKLg",
+    chatId: "454965133"
+));
+
 builder.Services.AddAutoMapper(typeof(AppMappingProfile).Assembly);
 builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IUserManagementService, UserManagementService>();

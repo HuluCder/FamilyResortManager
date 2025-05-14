@@ -3,360 +3,216 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model FamilyResortManager.Pages.Bookings.CalendarModel
 @{
-  Layout = "_Layout";
-  ViewData["Title"] = "Календарь бронирований";
+    Layout = "_Layout";
+    ViewData["Title"] = "Календарь бронирований";
 }
 
 <div class="container mx-auto p-6">
-  <div class="card animate__animated animate__fadeIn">
-    <div class="card-header">
-      <div class="flex items-center space-x-4">
-        <div class="nav-arrow" onclick="navigateMonth(-1)" data-tippy-content="Предыдущий месяц">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </div>
-        <span>Календарь бронирований</span>
-        <div class="nav-arrow" onclick="navigateMonth(1)" data-tippy-content="Следующий месяц">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
-      </div>
-      <a asp-page="/Bookings/Create" class="btn btn-primary animate__animated animate__pulse animate__infinite"
-         data-tippy-content="Добавить новое бронирование">Добавить</a>
-    </div>
-    <div class="card-body">
-      <!-- Date Range Picker and Room Type Selector -->
-      <div class="filters mb-4">
-        <div class="flex gap-4 flex-wrap">
-          <div class="form-group">
-            <label for="checkInDatePicker" class="form-label">Дата въезда</label>
-            <input type="text" id="checkInDatePicker" class="form-control" placeholder="Выберите дату въезда" />
-          </div>
-          <div class="form-group">
-            <label for="checkOutDatePicker" class="form-label">Дата выезда</label>
-            <input type="text" id="checkOutDatePicker" class="form-control" placeholder="Выберите дату выезда" />
-          </div>
-          <div class="form-group">
-            <label for="roomTypeSelect" class="form-label">Тип номера</label>
-            <select id="roomTypeSelect" class="form-control">
-              <option value="">Все типы</option>
-              <option value="Стандарт" selected="@(Model.SelectedRoomType == "Стандарт")">Стандарт</option>
-              <option value="Family стандарт" selected="@(Model.SelectedRoomType == "Family стандарт")">Family стандарт</option>
-              <option value="Комфорт" selected="@(Model.SelectedRoomType == "Комфорт")">Комфорт</option>
-              <option value="Family комфорт" selected="@(Model.SelectedRoomType == "Family комфорт")">Family комфорт</option>
-              <option value="Полулюкс" selected="@(Model.SelectedRoomType == "Полулюкс")">Полулюкс</option>
-              <option value="Люкс" selected="@(Model.SelectedRoomType == "Люкс")">Люкс</option>
-              <option value="Коттедж" selected="@(Model.SelectedRoomType == "Коттедж")">Коттедж</option>
-            </select>
-          </div>
-          <div class="form-group align-self-end">
-            <button type="button" id="applyFilters" class="btn btn-primary">Применить</button>
-            <button type="button" id="resetFilters" class="btn btn-secondary">Сбросить</button>
-          </div>
-        </div>
-      </div>
-      <div class="dropdown-container">
-        <select id="monthSelect" onchange="updateCalendar()">
-          @{
-            for (int i = 1; i <= 12; i++)
-            {
-              var monthName = System.Globalization.CultureInfo.GetCultureInfo("ru-RU").DateTimeFormat.GetMonthName(i);
-              <option value="@i" selected="@(i == Model.SelectedMonth)">@monthName</option>
-            }
-          }
-        </select>
-        <select id="yearSelect" onchange="updateCalendar()">
-          @{
-            for (int i = DateTime.UtcNow.Year - 5; i <= DateTime.UtcNow.Year + 5; i++)
-            {
-              <option value="@i" selected="@(i == Model.SelectedYear)">@i</option>
-            }
-          }
-        </select>
-      </div>
-      <div class="calendar-container">
-        <div class="mt-6 flex gap-4 items-center text-sm text-gray-700">
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-blue-600 rounded"></div>
-            <span>Забронировано</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-orange-400 rounded"></div>
-            <span>Ожидает подтверждения</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="w-4 h-4 border border-gray-400 rounded"></div>
-            <span>Свободно</span>
-          </div>
-        </div>
-        <table class="calendar-table">
-          <thead>
-          <tr>
-            <th>Номер</th>
-            @for (DateTime date = Model.StartDate; date <= Model.EndDate; date = date.AddDays(1))
-            {
-              var isToday = date.Date == DateTime.UtcNow.Date;
-              var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
-              <th class="@(isToday ? "day-today" : "") @(isWeekend ? "day-weekend" : "")">
-                @date.ToString("dd MMM", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"))
-                <br />
-                @date.ToString("ddd", System.Globalization.CultureInfo.GetCultureInfo("ru-RU")).Substring(0, 2)
-              </th>
-            }
-          </tr>
-          </thead>
-          <tbody>
-          @foreach (var room in Model.Rooms.OrderBy(r => r.Number))
-          {
-            <tr class="animate__animated animate__fadeIn" style="animation-delay: @(Model.Rooms.ToList().IndexOf(room) * 0.1)s">
-              <td class="room-header">
-                <div class="room-info">
-                  <span class="room-number">@room.Number</span>
-                  <span class="room-type">@room.Type</span>
+    <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+            <div class="flex items-center space-x-4">
+                <div class="nav-arrow" onclick="navigateMonth(-1)" data-tippy-content="Предыдущий месяц">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
                 </div>
-              </td>
-                @{
-                    var cursor = Model.StartDate.Date;
-                    var roomBookings = Model.Bookings
-                        .Where(b => b.RoomId == room.Id)
-                        .OrderBy(b => b.CheckInDate)
-                        .ToList();
-                    var roomPendingBookings = Model.PendingBookings
-                        .Where(b => b.RoomId == room.Id)
-                        .OrderBy(b => b.CheckInDate)
-                        .ToList();
-                }
-                @for (DateTime date = Model.StartDate.Date; date <= Model.EndDate.Date; date = date.AddDays(1))
-                {
-                    var booking = roomBookings.FirstOrDefault(b =>
-                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
-
-                    var pending = roomPendingBookings.FirstOrDefault(b =>
-                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
-
-                    // Проверяем въезд и выезд для каждого бронирования
-                    var isCheckIn = booking?.CheckInDate.Date == date;
-                    var isCheckOut = booking?.CheckOutDate.Date == date;
-                    var isPendingCheckIn = pending?.CheckInDate.Date == date;
-                    var isPendingCheckOut = pending?.CheckOutDate.Date == date;
-                    var cssClass = "";
-                    var tooltip = "";
-                    var isClickable = true;
-                    var checkOutBooking = roomBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
-                    var checkInBooking = roomBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
-                    var pendingCheckOutBooking = roomPendingBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
-                    var pendingCheckInBooking = roomPendingBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
-
-                    var hasConfirmedOut = checkOutBooking != null;
-                    var hasPendingOut = pendingCheckOutBooking != null;
-                    var hasConfirmedIn = checkInBooking != null;
-                    var hasPendingIn = pendingCheckInBooking != null;
-
-                    // Проверяем комбинированное состояние (въезд и выезд в один день для одной брони)
-                    bool isCombined = false;
-                    Booking combinedBooking = null;
-
-                    if (booking != null && isCheckIn && isCheckOut)
-                    {
-                        isCombined = true;
-                        combinedBooking = booking;
-                    }
-                    else if (pending != null && isPendingCheckIn && isPendingCheckOut)
-                    {
-                        isCombined = true;
-                        combinedBooking = pending;
-                    }
-
-                    // Устанавливаем cssClass с использованием else if для предотвращения перезаписи
-                    if ((hasConfirmedOut || hasPendingOut) && (hasConfirmedIn || hasPendingIn))
-                    {
-                        cssClass = "booking-combined-mixed";
-                        tooltip = "";
-                        if (hasConfirmedOut)
-                            tooltip += $"Выезд: {checkOutBooking.CheckOutDate:dd.MM HH:mm}\nКлиент: {checkOutBooking.Client?.Name}\n";
-                        if (hasPendingOut)
-                            tooltip += $"Выезд (ожидание): {pendingCheckOutBooking.CheckOutDate:dd.MM HH:mm}\nКлиент: {pendingCheckOutBooking.Client?.Name}\n";
-
-                        if (hasConfirmedIn)
-                            tooltip += $"Заезд: {checkInBooking.CheckInDate:dd.MM HH:mm}\nКлиент: {checkInBooking.Client?.Name}";
-                        if (hasPendingIn)
-                            tooltip += $"Заезд (ожидание): {pendingCheckInBooking.CheckInDate:dd.MM HH:mm}\nКлиент: {pendingCheckInBooking.Client?.Name}";
-
-                        isClickable = false;
-                    }
-                    else if (isCombined)
-                    {
-                        cssClass = "booking-combined";
-                        if (combinedBooking?.Status == "Ожидание") cssClass += " pending";
-                        tooltip = $"Бронь: {combinedBooking?.CheckInDate:dd.MM HH:mm} → {combinedBooking?.CheckOutDate:dd.MM HH:mm}" +
-                                  (combinedBooking?.Client?.Name != null ? $"\nКлиент: {combinedBooking.Client.Name}" : "");
-                        isClickable = false;
-                    }
-                    else if (booking != null)
-                    {
-                        if (isCheckIn)
-                        {
-                            cssClass = "booking-end-half";
-                            tooltip = $"Заезд: {booking.CheckInDate:dd.MM HH:mm}" +
-                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
-                        }
-                        else if (isCheckOut)
-                        {
-                            cssClass = "booking-start-half";
-                            tooltip = $"Выезд: {booking.CheckOutDate:dd.MM HH:mm}" +
-                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
-                        }
-                        else
-                        {
-                            cssClass = "booking-full";
-                            tooltip = $"Бронь: {booking.CheckInDate:dd.MM HH:mm} → {booking.CheckOutDate:dd.MM HH:mm}" +
-                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
-                            isClickable = false;
-                        }
-                    }
-                    else if (pending != null)
-                    {
-                        if (isPendingCheckIn)
-                        {
-                            cssClass = "booking-end-half pending";
-                            tooltip = $"Ожидает заезд: {pending.CheckInDate:dd.MM HH:mm}" +
-                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
-                        }
-                        else if (isPendingCheckOut)
-                        {
-                            cssClass = "booking-start-half pending";
-                            tooltip = $"Ожидает выезд: {pending.CheckOutDate:dd.MM HH:mm}" +
-                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
-                        }
-                        else
-                        {
-                            cssClass = "booking-full pending";
-                            tooltip = $"Ожидает: {pending.CheckInDate:dd.MM HH:mm} → {pending.CheckOutDate:dd.MM HH:mm}" +
-                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
-                            isClickable = false;
-                        }
-                    }
-                    else
-                    {
-                        cssClass = "";
-                        tooltip = "Свободно";
-                    }
-
-                    <td class="calendar-cell @cssClass"
-                        data-date="@date.ToString("yyyy-MM-dd")"
-                        data-room-id="@room.Id"
-                        data-tippy-content="@tooltip"
-                        style="--left-color: @(hasPendingOut ? "#f97316" : "#3b82f6"); --right-color: @(hasPendingIn ? "#f97316" : "#3b82f6");"
-                        onclick="@(Model.IsAdmin || !isClickable ? "" : "selectDate(new Date('" + date.ToString("yyyy-MM-dd") + "'), " + room.Id + ")")">
-                        @if (Model.IsAdmin && (isCheckIn || isCheckOut || isPendingCheckIn || isPendingCheckOut || isCombined))
-                        {
-                            <a asp-page="/Admin/Bookings/Details"
-                               asp-route-id="@(booking?.Id ?? pending?.Id ?? combinedBooking?.Id)"
-                               class="booking-link">
-                                @(booking?.Client?.Name ?? pending?.Client?.Name ?? combinedBooking?.Client?.Name ?? "Клиент не указан")
-                                @if (pending != null || (combinedBooking?.Status == "Ожидание")) { <span>(Ожидание)</span> }
-                            </a>
-                        }
-                    </td>
-                }
-            </tr>
-          }
-          </tbody>
-        </table>
-      </div>
-      @if (!Model.IsAdmin)
-      {
-        <!-- Информация о выбранном диапазоне дат без формы -->
-        <div class="booking-info-container mt-4">
-          <div class="card">
-            <div class="card-header">
-              <h3>Бронирование номера</h3>
+                <span>Календарь бронирований</span>
+                <div class="nav-arrow" onclick="navigateMonth(1)" data-tippy-content="Следующий месяц">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
             </div>
-            <div class="card-body">
-              <p class="mb-2">Выберите даты и номер для бронирования на календаре</p>
-              <p id="selectionInfo" class="text-gray-600">Не выбрано</p>
-              <button type="button" id="openBookingModalBtn"
-                      class="btn btn-primary hidden"
-                      data-bs-toggle="modal"
-                      data-bs-target="#bookingModal"
-                      disabled>
-                Забронировать
-              </button>
-            </div>
-          </div>
+            @if (Model.IsAdmin)
+            {
+                <div class="header-actions">
+                    <a asp-page="/Bookings/Create" class="btn btn-primary animate__animated animate__pulse animate__infinite"
+                       data-tippy-content="Добавить новое бронирование">Добавить</a>
+                    <a href="/Bookings/Export?month=@Model.SelectedMonth&year=@Model.SelectedYear" class="btn btn-secondary ml-2">Экспорт</a>
+                </div>
+            }
         </div>
-        <!-- Модальное окно для бронирования -->
-        <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="bookingModalLabel">Заявка на бронирование</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-              </div>
-              <div class="modal-body">
-                <form id="bookingForm" method="post">
-                  <input type="hidden" id="modalRoomId" name="roomId" />
-                  <input type="hidden" id="modalCheckInDate" name="checkInDate" />
-                  <input type="hidden" id="modalCheckOutDate" name="checkOutDate" />
-                  <div class="mb-4">
-                    <label class="form-label">Выбранные даты:</label>
-                    <div class="p-3 bg-light rounded" id="modalDateRange"></div>
-                  </div>
-                  <div class="mb-4">
-                    <label class="form-label">Выбранный номер:</label>
-                    <div class="p-3 bg-light rounded" id="modalRoomNumber"></div>
-                  </div>
-                  <div class="form-group mb-4">
-                    <label for="clientName" class="form-label">Ваше имя</label>
-                    <input type="text" class="form-control" id="clientName" name="clientName" required />
-                  </div>
-                  <div class="form-group mb-4">
-                    <label for="clientEmail" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="clientEmail" name="clientEmail" required />
-                  </div>
-                  <div class="form-group mb-4">
-                    <label for="clientPhone" class="form-label">Телефон</label>
-                    <input type="tel" class="form-control" id="clientPhone" name="clientPhone"
-                           pattern="(\+7|8)\s?\(\d{3}\)\s?\d{3}-\d{2}-\d{2}"
-                           placeholder="+7 (999) 123-45-67"
-                           title="Введите номер в формате +7 (999) 123-45-67 или 8 (999) 123-45-67"
-                           required />
-                    <div class="invalid-feedback">
-                      Пожалуйста, введите номер телефона в формате +7 (999) 123-45-67 или 8 (999) 123-45-67
+        <div class="card-body">
+            <!-- Сезонный индикатор -->
+            <div class="text-sm font-medium text-green-600 bg-green-50 border border-green-300 rounded px-3 py-1 mb-4 inline-block">
+                Сезон бронирования: с 15 июня (заезд с 13:00) по 12 августа (выезд до 10:00)
+            </div>
+            <!-- Filters -->
+            <div class="filters mb-4">
+                <button class="btn btn-secondary filter-toggle mb-2" onclick="toggleFilters()">Фильтры</button>
+                <div class="filter-content flex gap-4 flex-wrap">
+                    <div class="form-group">
+                        <label for="checkInDatePicker" class="form-label">Дата въезда</label>
+                        <input type="text" id="checkInDatePicker" class="form-control" placeholder="Выберите дату въезда" />
                     </div>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="button" class="btn btn-primary" id="submitBookingBtn">Отправить заявку</button>
-              </div>
+                    <div class="form-group">
+                        <label for="checkOutDatePicker" class="form-label">Дата выезда</label>
+                        <input type="text" id="checkOutDatePicker" class="form-control" placeholder="Выберите дату выезда" />
+                    </div>
+                    <div class="form-group">
+                        <label for="roomTypeSelect" class="form-label">Тип номера</label>
+                        <select id="roomTypeSelect" class="form-control">
+                            <option value="">Все типы</option>
+                            <option value="Стандарт" selected="@(Model.SelectedRoomType == "Стандарт")">Стандарт</option>
+                            <option value="Family стандарт" selected="@(Model.SelectedRoomType == "Family стандарт")">Family стандарт</option>
+                            <option value="Комфорт" selected="@(Model.SelectedRoomType == "Комфорт")">Комфорт</option>
+                            <option value="Family комфорт" selected="@(Model.SelectedRoomType == "Family комфорт")">Family комфорт</option>
+                            <option value="Полулюкс" selected="@(Model.SelectedRoomType == "Полулюкс")">Полулюкс</option>
+                            <option value="Люкс" selected="@(Model.SelectedRoomType == "Люкс")">Люкс</option>
+                            <option value="Коттедж" selected="@(Model.SelectedRoomType == "Коттедж")">Коттедж</option>
+                        </select>
+                    </div>
+                    @if (Model.IsAdmin)
+                    {
+                        <div class="form-group">
+                            <label for="bookingStatusSelect" class="form-label">Статус бронирования</label>
+                            <select id="bookingStatusSelect" class="form-control">
+                                <option value="">Все статусы</option>
+                                <option value="Подтверждено" selected="@(Model.SelectedBookingStatus == "Подтверждено")">Подтверждено</option>
+                                <option value="Ожидание" selected="@(Model.SelectedBookingStatus == "Ожидание")">Ожидает подтверждения</option>
+                            </select>
+                        </div>
+                    }
+                    <div class="form-group align-self-end">
+                        <button type="button" id="applyFilters" class="btn btn-primary">Применить</button>
+                        <button type="button" id="resetFilters" class="btn btn-secondary">Сбросить</button>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-        <!-- Модальное окно успешной отправки заявки -->
-        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="successModalLabel">Заявка отправлена!</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-              </div>
-              <div class="modal-body">
-                <p>Ваша заявка на бронирование успешно отправлена.</p>
-                <p>Мы свяжемся с вами в ближайшее время для подтверждения бронирования.</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
-              </div>
+            <div class="dropdown-container">
+                <select id="monthSelect" onchange="updateCalendar()">
+                    @{
+                        var allowedMonths = new[] { 6, 7, 8 }; // Июнь, Июль, Август
+                        foreach (var i in allowedMonths)
+                        {
+                            var monthName = System.Globalization.CultureInfo.GetCultureInfo("ru-RU").DateTimeFormat.GetMonthName(i);
+                            <option value="@i" selected="@(i == Model.SelectedMonth)">@monthName</option>
+                        }
+                    }
+                </select>
+                @if (Model.IsAdmin)
+                {
+                    <select id="yearSelect" onchange="updateCalendar()">
+                        @{
+                            for (int i = DateTime.UtcNow.Year - 5; i <= DateTime.UtcNow.Year + 5; i++)
+                            {
+                                <option value="@i" selected="@(i == Model.SelectedYear)">@i</option>
+                            }
+                        }
+                    </select>
+                }
             </div>
-          </div>
+            <div class="legend mt-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-blue-600 rounded"></div>
+                    <span>Подтверждено (весь день)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 bg-orange-400 rounded"></div>
+                    <span>Ожидает подтверждения</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-4 h-4 border border-gray-400 rounded"></div>
+                    <span>Свободно</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div style="width: 1.5rem; height: 1rem; background: linear-gradient(to right, transparent 50%, #3b82f6 50%); border: 1px solid #ccc; border-radius: 4px;"></div>
+                    <span>Выезд (до 10:00)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div style="width: 1.5rem; height: 1rem; background: linear-gradient(to right, #3b82f6 50%, transparent 50%); border: 1px solid #ccc; border-radius: 4px;"></div>
+                    <span>Заезд (с 13:00)</span>
+                </div>
+            </div>
+            @await Html.PartialAsync("_CalendarPartial", Model)
+            @if (!Model.IsAdmin)
+            {
+                <div class="booking-info-container mt-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Бронирование номера</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-2">Выберите даты и номер для бронирования на календаре</p>
+                            <p id="selectionInfo" class="text-gray-600">Не выбрано</p>
+                            <button type="button" id="openBookingModalBtn"
+                                    class="btn btn-primary hidden"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#bookingModal"
+                                    disabled>
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="bookingModalLabel">Заявка на бронирование</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="bookingForm" method="post">
+                                    <input type="hidden" id="modalRoomId" name="roomId" />
+                                    <input type="hidden" id="modalCheckInDate" name="checkInDate" />
+                                    <input type="hidden" id="modalCheckOutDate" name="checkOutDate" />
+                                    <div class="mb-4">
+                                        <label class="form-label">Выбранные даты:</label>
+                                        <div class="p-3 bg-light rounded" id="modalDateRange"></div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label">Выбранный номер:</label>
+                                        <div class="p-3 bg-light rounded" id="modalRoomNumber"></div>
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label for="clientName" class="form-label">Ваше имя</label>
+                                        <input type="text" class="form-control" id="clientName" name="clientName" required />
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label for="clientEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="clientEmail" name="clientEmail" required />
+                                    </div>
+                                    <div class="form-group mb-4">
+                                        <label for="clientPhone" class="form-label">Телефон</label>
+                                        <input type="tel" class="form-control" id="clientPhone" name="clientPhone"
+                                               pattern="(\+7|8)\s?\(\d{3}\)\s?\d{3}-\d{2}-\d{2}"
+                                               placeholder="+7 (999) 123-45-67"
+                                               title="Введите номер в формате +7 (999) 123-45-67 или 8 (999) 123-45-67"
+                                               required />
+                                        <div class="invalid-feedback">
+                                            Пожалуйста, введите номер телефона в формате +7 (999) 123-45-67 или 8 (999) 123-45-67
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="button" class="btn btn-primary" id="submitBookingBtn">Отправить заявку</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="successModalLabel">Заявка отправлена!</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Ваша заявка на бронирование успешно отправлена.</p>
+                                <p>Мы свяжемся с вами в ближайшее время для подтверждения бронирования.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-      }
     </div>
-  </div>
 </div>
 
 @section Scripts {
@@ -367,12 +223,14 @@
     <script src="https://unpkg.com/@@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6/dist/tippy-bundle.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/inputmask@5/dist/inputmask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- Для AJAX -->
     <script>
-        // Initialize Flatpickr
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Flatpickr
             flatpickr("#checkInDatePicker", {
                 dateFormat: "Y-m-d",
-                minDate: "today",
+                minDate: "2025-06-15",
+                maxDate: "2025-08-11",
                 locale: "ru",
                 onChange: function(selectedDates, dateStr) {
                     const checkOutPicker = document.querySelector("#checkOutDatePicker")._flatpickr;
@@ -382,40 +240,68 @@
 
             flatpickr("#checkOutDatePicker", {
                 dateFormat: "Y-m-d",
-                minDate: "today",
+                minDate: "2025-06-15",
+                maxDate: "2025-08-12",
                 locale: "ru"
             });
 
-            // Apply filters
+            // Apply filters with AJAX
             document.getElementById('applyFilters').addEventListener('click', function() {
                 const checkInDate = document.getElementById('checkInDatePicker').value;
                 const checkOutDate = document.getElementById('checkOutDatePicker').value;
                 const roomType = document.getElementById('roomTypeSelect').value;
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
+                const statusSelect = document.getElementById('bookingStatusSelect');
+                const bookingStatus = statusSelect ? statusSelect.value : '';
 
-                if (checkInDate && checkOutDate) {
-                    if (new Date(checkOutDate) <= new Date(checkInDate)) {
-                        alert('Дата выезда должна быть позже даты въезда.');
-                        return;
+                let selectedMonth = document.getElementById('monthSelect').value;
+                const yearSelectEl = document.getElementById('yearSelect');
+                let selectedYear = yearSelectEl ? yearSelectEl.value : 2025;
+
+                // Если указана дата въезда — установить месяц и год календаря на нее
+                if (checkInDate) {
+                    const date = new Date(checkInDate);
+                    selectedMonth = date.getMonth() + 1;
+                    selectedYear = date.getFullYear();
+
+                    document.getElementById('monthSelect').value = selectedMonth;
+                    if (yearSelectEl) {
+                        yearSelectEl.value = selectedYear;
                     }
                 }
 
-                let url = `?month=${month}&year=${year}`;
-                if (checkInDate) url += `&checkInDate=${checkInDate}`;
-                if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
-                if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
-                window.location.href = url;
+                // Проверка даты
+                if (checkInDate && checkOutDate && new Date(checkOutDate) <= new Date(checkInDate)) {
+                    alert('Дата выезда должна быть позже даты въезда.');
+                    return;
+                }
+
+                updateCalendarData({
+                    month: selectedMonth,
+                    year: selectedYear,
+                    checkInDate,
+                    checkOutDate,
+                    roomType,
+                    bookingStatus
+                });
             });
 
             // Reset filters
-            document.getElementById('resetFilters').addEventListener('click', function() {
-                const month = document.getElementById('monthSelect').value;
-                const year = document.getElementById('yearSelect').value;
+            document.getElementById('resetFilters').addEventListener('click', function () {
+                // Очистка значений
                 document.getElementById('checkInDatePicker').value = '';
                 document.getElementById('checkOutDatePicker').value = '';
                 document.getElementById('roomTypeSelect').value = '';
-                window.location.href = `?month=${month}&year=${year}`;
+
+                const statusSelect = document.getElementById('bookingStatusSelect');
+                if (statusSelect) {
+                    statusSelect.value = '';
+                }
+
+                const month = document.getElementById('monthSelect').value;
+                const yearSelect = document.getElementById('yearSelect');
+                const year = yearSelect ? yearSelect.value : 2025; // fallback для неадмина
+
+                updateCalendarData({ month, year });
             });
 
             // Initialize Inputmask for phone number
@@ -432,18 +318,17 @@
                 tippy('[data-tippy-content]');
             }
 
-            // Equalize row heights
-            equalizeRowHeights();
-
             // Bootstrap form validation
             const form = document.getElementById('bookingForm');
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
+            if (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                });
+            }
 
             // Restore scroll on modal close
             function restoreScroll() {
@@ -463,25 +348,40 @@
             }
         });
 
-        function equalizeRowHeights() {
-            const rows = document.querySelectorAll('.calendar-table tbody tr');
-            let maxHeight = 0;
-            rows.forEach(row => {
-                const height = row.offsetHeight;
-                if (height > maxHeight) {
-                    maxHeight = height;
+        function toggleFilters() {
+            const filters = document.querySelector('.filter-content');
+            filters.classList.toggle('active');
+        }
+
+        function updateCalendarData(filters) {
+            document.querySelector('.calendar-container').innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"></div></div>';
+            axios.get('/BookCalendar/Calendar?handler=Partial', { // Обновлено на правильный маршрут
+                params: filters
+            }).then(response => {
+                document.querySelector('.calendar-container').innerHTML = response.data;
+                // Переинициализация Tippy после обновления
+                if (typeof tippy === 'function') {
+                    tippy('[data-tippy-content]');
                 }
+            }).catch(error => {
+                console.error('Ошибка при обновлении календаря:', error);
             });
-            rows.forEach(row => {
-                row.style.height = `${maxHeight}px`;
-            });
+        }
+
+        function updateCalendar() {
+            const month = document.getElementById('monthSelect').value;
+            const yearSelect = document.getElementById('yearSelect');
+            const year = yearSelect ? yearSelect.value : 2025;
+            updateCalendarData({ month, year });
         }
 
         function navigateMonth(direction) {
             const monthSelect = document.getElementById('monthSelect');
             const yearSelect = document.getElementById('yearSelect');
+
             let currentMonth = parseInt(monthSelect.value);
-            let currentYear = parseInt(yearSelect.value);
+            let currentYear = yearSelect ? parseInt(yearSelect.value) : 2025;
+
             currentMonth += direction;
             if (currentMonth > 12) {
                 currentMonth = 1;
@@ -490,22 +390,21 @@
                 currentMonth = 12;
                 currentYear--;
             }
-            monthSelect.value = currentMonth;
-            yearSelect.value = currentYear;
-            updateCalendar();
-        }
 
-        function updateCalendar() {
-            const month = document.getElementById('monthSelect').value;
-            const year = document.getElementById('yearSelect').value;
-            const checkInDate = document.getElementById('checkInDatePicker').value;
-            const checkOutDate = document.getElementById('checkOutDatePicker').value;
-            const roomType = document.getElementById('roomTypeSelect').value;
-            let url = `?month=${month}&year=${year}`;
-            if (checkInDate) url += `&checkInDate=${checkInDate}`;
-            if (checkOutDate) url += `&checkOutDate=${checkOutDate}`;
-            if (roomType) url += `&roomType=${encodeURIComponent(roomType)}`;
-            window.location.href = url;
+            // Ограничим диапазон
+            if ((currentYear === 2025 && currentMonth < 6) ||
+                (currentYear === 2025 && currentMonth > 8)) {
+                alert("Бронирование доступно только с 15 июня по 12 августа.");
+                return;
+            }
+
+            // Устанавливаем значения только если селекторы доступны
+            monthSelect.value = currentMonth;
+            if (yearSelect) {
+                yearSelect.value = currentYear;
+            }
+
+            updateCalendarData({ month: currentMonth, year: currentYear });
         }
 
         let startDate = null;
@@ -514,14 +413,20 @@
         let selectedRoomNumber = null;
 
         function selectDate(date, roomId) {
+            const minDate = new Date("2025-06-15");
+            const maxDate = new Date("2025-08-12");
+
+            if (date < minDate || date > maxDate) {
+                alert("Выбор даты возможен только в период с 15 июня по 12 августа.");
+                return;
+            }
+
             if (date < new Date().setHours(0, 0, 0, 0)) {
                 alert('Нельзя выбрать дату в прошлом.');
                 return;
             }
 
-            const cell = document.querySelector(
-                `td[data-date="${date.toISOString().split('T')[0]}"][data-room-id="${roomId}"]`
-            );
+            const cell = document.querySelector(`td[data-date="${date.toISOString().split('T')[0]}"][data-room-id="${roomId}"]`);
 
             const isFull = cell.classList.contains("booking-full") || cell.classList.contains("booking-full pending");
             if (isFull) {
@@ -561,7 +466,26 @@
             const dateString = date.toISOString().split('T')[0];
             const cell = document.querySelector(`td[data-date="${dateString}"][data-room-id="${roomId}"]`);
             if (cell) {
-                cell.classList.add(className);
+                const bgDiv = cell.querySelector('.cell-background');
+                if (!bgDiv) return;
+
+                const isStartHalf = cell.classList.contains("booking-start-half") || cell.classList.contains("booking-start-half", "pending");
+                const isEndHalf = cell.classList.contains("booking-end-half") || cell.classList.contains("booking-end-half", "pending");
+
+                // Очищаем старые стили
+                bgDiv.className = 'cell-background';
+
+                if (className === 'selected-start' || className === 'selected-end') {
+                    if (isStartHalf) {
+                        bgDiv.style.background = 'linear-gradient(to right, var(--pending-color) 50%, var(--success-color) 50%)';
+                    } else if (isEndHalf) {
+                        bgDiv.style.background = 'linear-gradient(to right, var(--success-color) 50%, var(--pending-color) 50%)';
+                    } else {
+                        bgDiv.classList.add(className); // стандартное поведение
+                    }
+                } else if (className === 'selected-range') {
+                    bgDiv.classList.add(className);
+                }
             }
         }
 
@@ -580,10 +504,10 @@
         }
 
         function clearHighlights() {
-            document.querySelectorAll('.selected-start, .selected-end, .selected-range')
-                .forEach(el => {
-                    el.classList.remove('selected-start', 'selected-end', 'selected-range');
-                });
+            document.querySelectorAll('.cell-background').forEach(bgDiv => {
+                bgDiv.classList.remove('selected-start', 'selected-end', 'selected-range');
+                bgDiv.style.background = '';
+            });
         }
 
         function updateSelectionDisplay() {
@@ -649,73 +573,37 @@
             });
         }
 
-        document.getElementById('submitBookingBtn').addEventListener('click', async function () {
-            const submitBtn = this;
-            const form = document.getElementById('bookingForm');
-            const roomId = document.getElementById('modalRoomId').value;
-            const checkInDate = new Date(document.getElementById('modalCheckInDate').value);
-            checkInDate.setHours(13, 0, 0, 0);
-            const checkOutDate = new Date(document.getElementById('modalCheckOutDate').value);
-            checkOutDate.setHours(10, 0, 0, 0);
-            const clientName = document.getElementById('clientName').value;
-            const clientEmail = document.getElementById('clientEmail').value;
-            const clientPhone = document.getElementById('clientPhone').value;
-
-            // Проверка пересечений с учетом времени
-            const overlap = existingBookings.some(b => {
-                if (parseInt(b.RoomId) !== parseInt(roomId)) return false;
-                const bStart = new Date(b.CheckInDate);
-                const bEnd = new Date(b.CheckOutDate);
-                const newStart = checkInDate;
-                const newEnd = checkOutDate;
-                return newStart < bEnd && newEnd > bStart;
-            });
-
-            if (overlap) {
-                alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
-                clearHighlights();
-                startDate = null;
-                endDate = null;
-                selectedRoomId = null;
-                selectedRoomNumber = null;
-                document.getElementById('selectionInfo').textContent = 'Не выбрано';
-                return;
+        function handleKeyDown(event, date, roomId) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                selectDate(date, roomId);
+                event.preventDefault();
             }
+        }
 
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
-
-            try {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Отправка...';
-                const formData = new FormData();
-                formData.append('Input.RoomId', roomId);
-                // Явное преобразование в UTC ISO-строку
-                formData.append('Input.CheckInDate', checkInDate.toISOString());
-                formData.append('Input.CheckOutDate', checkOutDate.toISOString());
-                formData.append('ClientName', clientName);
-                formData.append('ClientEmail', clientEmail);
-                formData.append('ClientPhone', clientPhone);
-
-                const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
-                if (antiForgeryToken) {
-                    formData.append('__RequestVerificationToken', antiForgeryToken.value);
-                }
-
-                const response = await fetch('/Client/Bookings/Create?handler=CreateBooking', {
-                    method: 'POST',
-                    body: formData
+        const submitBtn = document.getElementById('submitBookingBtn');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async function () {
+                const submitBtn = this;
+                const form = document.getElementById('bookingForm');
+                const roomId = document.getElementById('modalRoomId').value;
+                const checkInDate = new Date(document.getElementById('modalCheckInDate').value);
+                checkInDate.setHours(13, 0, 0, 0);
+                const checkOutDate = new Date(document.getElementById('modalCheckOutDate').value);
+                checkOutDate.setHours(10, 0, 0, 0);
+                const clientName = document.getElementById('clientName').value;
+                const clientEmail = document.getElementById('clientEmail').value;
+                const clientPhone = document.getElementById('clientPhone').value;
+    
+                const overlap = existingBookings.some(b => {
+                    if (parseInt(b.RoomId) !== parseInt(roomId)) return false;
+                    const bStart = new Date(b.CheckInDate);
+                    const bEnd = new Date(b.CheckOutDate);
+                    const newStart = checkInDate;
+                    const newEnd = checkOutDate;
+                    return newStart < bEnd && newEnd > bStart;
                 });
-
-                if (response.redirected) {
-                    window.location.href = response.url;
-                    return;
-                }
-
-                const responseText = await response.text();
-                if (response.status === 409) {
+    
+                if (overlap) {
                     alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
                     clearHighlights();
                     startDate = null;
@@ -725,42 +613,93 @@
                     document.getElementById('selectionInfo').textContent = 'Не выбрано';
                     return;
                 }
-
-                if (response.ok) {
-                    console.log("Бронирование успешно создано!");
-                    const bookingModalInstance = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
-                    if (bookingModalInstance) {
-                        bookingModalInstance.hide();
-                    }
-                    form.reset();
-                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                    if (successModal) {
-                        successModal.show();
-                    }
-                    clearHighlights();
-                    startDate = null;
-                    endDate = null;
-                    selectedRoomId = null;
-                    selectedRoomNumber = null;
-                    document.getElementById('selectionInfo').textContent = 'Не выбрано';
-                    const bookButton = document.getElementById('openBookingModalBtn');
-                    if (bookButton) {
-                        bookButton.classList.add('hidden');
-                        bookButton.disabled = true;
-                    }
-                    window.location.reload();
-                } else {
-                    console.error('Ошибка запроса:', responseText);
-                    alert('Произошла ошибка при бронировании. Пожалуйста, попробуйте снова позже.');
+    
+                if (!form.checkValidity()) {
+                    form.classList.add('was-validated');
+                    return;
                 }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Отправить заявку';
-            }
-});
+    
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Отправка...';
+                    const formData = new FormData();
+                    formData.append('Input.RoomId', roomId);
+                    formData.append('Input.CheckInDate', checkInDate.toISOString());
+                    formData.append('Input.CheckOutDate', checkOutDate.toISOString());
+                    formData.append('ClientName', clientName);
+                    formData.append('ClientEmail', clientEmail);
+                    formData.append('ClientPhone', clientPhone);
+    
+                    const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (antiForgeryToken) {
+                        formData.append('__RequestVerificationToken', antiForgeryToken.value);
+                    }
+    
+                    const response = await fetch('/Client/Bookings/Create?handler=CreateBooking', {
+                        method: 'POST',
+                        body: formData
+                    });
+    
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+    
+                    const responseText = await response.text();
+                    if (response.status === 409) {
+                        alert("Выбранный период уже занят. Пожалуйста, выберите другие даты.");
+                        clearHighlights();
+                        startDate = null;
+                        endDate = null;
+                        selectedRoomId = null;
+                        selectedRoomNumber = null;
+                        document.getElementById('selectionInfo').textContent = 'Не выбрано';
+                        return;
+                    }
+    
+                    if (response.ok) {
+                        console.log("Бронирование успешно создано!");
+                        const bookingModalInstance = bootstrap.Modal.getInstance(document.getElementById('bookingModal'));
+                        if (bookingModalInstance) {
+                            bookingModalInstance.hide();
+                        }
+                        form.reset();
+                        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        if (successModal) {
+                            successModal.show();
+                        }
+                        clearHighlights();
+                        startDate = null;
+                        endDate = null;
+                        selectedRoomId = null;
+                        selectedRoomNumber = null;
+                        document.getElementById('selectionInfo').textContent = 'Не выбрано';
+                        const bookButton = document.getElementById('openBookingModalBtn');
+                        if (bookButton) {
+                            bookButton.classList.add('hidden');
+                            bookButton.disabled = true;
+                        }
+                        updateCalendarData({
+                            month: document.getElementById('monthSelect').value,
+                            year: (document.getElementById('yearSelect')?.value || 2025),
+                            checkInDate: document.getElementById('checkInDatePicker').value,
+                            checkOutDate: document.getElementById('checkOutDatePicker').value,
+                            roomType: document.getElementById('roomTypeSelect').value,
+                            bookingStatus: document.getElementById('bookingStatusSelect')?.value || ''
+                        });
+                    } else {
+                        console.error('Ошибка запроса:', responseText);
+                        alert('Произошла ошибка при бронировании. Пожалуйста, попробуйте снова позже.');
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить заявку';
+                }
+            });
+        }
 
         const bookButton = document.getElementById('openBookingModalBtn');
         if (bookButton) {
@@ -768,14 +707,13 @@
             bookButton.disabled = true;
         }
 
-        // Обновленные existingBookings с учетом времени
         const existingBookings = @Html.Raw(Json.Serialize(
-            Model.Bookings.Concat(Model.PendingBookings)
-                .Select(b => new {
-                    RoomId = b.RoomId,
-                    CheckInDate = b.CheckInDate.ToString("o"),
-                    CheckOutDate = b.CheckOutDate.ToString("o")
-                })
-        ));
+                                     Model.Bookings.Concat(Model.PendingBookings)
+                                         .Select(b => new {
+                                             RoomId = b.RoomId,
+                                             CheckInDate = b.CheckInDate.ToString("o"),
+                                             CheckOutDate = b.CheckOutDate.ToString("o")
+                                         })
+                                 ));
     </script>
 }

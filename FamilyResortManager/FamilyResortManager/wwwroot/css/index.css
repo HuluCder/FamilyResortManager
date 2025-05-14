@@ -3,7 +3,7 @@ body {
     scroll-behavior: smooth;
 }
 .hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://dknews.kz/storage/news/2023-09/gWqfLvpIHAK7tfxvoOXgOwHvhFUtiKeMa82JKiUc.jpg');
     background-size: cover;
     background-position: center;
     min-height: 90vh;
@@ -175,4 +175,17 @@ body {
 }
 .float-animation {
     animation: float 5s ease-in-out infinite;
+}
+.room-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border-bottom: 4px solid transparent;
+    overflow: hidden;
+}
+.room-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.12);
+    border-bottom: 4px solid #3b82f6;
 }

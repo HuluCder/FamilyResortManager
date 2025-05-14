@@ -1,21 +1,21 @@
 /* ===== General Styles ===== */
 :root {
-    --primary-color: #4f46e5; /* Indigo */
-    --secondary-color: #818cf8; /* Light indigo */
-    --background-color: #f5f7fb; /* Light gray-blue */
-    --card-bg-color: #ffffff; /* White */
-    --text-color: #1f2937; /* Dark gray */
-    --border-color: #e5e7eb; /* Light gray */
-    --success-color: #10b981; /* Green */
-    --warning-color: #f59e0b; /* Amber */
-    --danger-color: #ef4444; /* Red */
-    --pending-color: #f59e0b; /* Orange */
-    --confirmed-color: #10b981; /* Green */
-    --cancelled-color: #ef4444; /* Red */
+    --primary-color: #4f46e5;
+    --secondary-color: #818cf8;
+    --background-color: #f5f7fb;
+    --card-bg-color: #ffffff;
+    --text-color: #1f2937;
+    --border-color: #e5e7eb;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --pending-color: #f97316;
+    --confirmed-color: #3b82f6;
+    --cancelled-color: #ef4444;
 }
 
 body {
-    font-family: 'Inter', sans-serif; /* Modern, clean font */
+    font-family: 'Inter', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
@@ -25,7 +25,7 @@ body {
 
 .container {
     max-width: 1440px;
-    margin: 60px auto;
+    margin: 20px auto;
     padding: 0 1rem;
 }
 
@@ -38,13 +38,8 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-}
-
 .card-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #6d5bff 100%); /* Subtle gradient */
+    background: linear-gradient(135deg, var(--primary-color) 0%, #6d5bff 100%);
     color: white;
     padding: 1.25rem 1.75rem;
     display: flex;
@@ -99,7 +94,7 @@ body {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #ffc107 0%, #ffdb4d 100%); /* Yellow gradient */
+    background: linear-gradient(135deg, #ffc107 0%, #ffdb4d 100%);
     color: #1f2937;
 }
 
@@ -120,12 +115,22 @@ body {
     box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
 }
 
-/* ===== Filters (Date Range Picker and Room Type) ===== */
+/* ===== Filters ===== */
 .filters {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.filter-toggle {
+    display: none;
+}
+
+.filter-content {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .filters .form-group {
@@ -147,6 +152,18 @@ body {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
     outline: none;
+}
+
+@media (max-width: 768px) {
+    .filter-toggle {
+        display: block;
+    }
+    .filter-content {
+        display: none;
+    }
+    .filter-content.active {
+        display: flex;
+    }
 }
 
 /* ===== Dropdown Container ===== */
@@ -248,57 +265,81 @@ body {
 }
 
 /* ===== Booking Styles ===== */
-.booking {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    width: 100%;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: 600;
-    font-size: 0.9rem;
-    padding: 6px;
+.booking-link {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;        /* максимум 2 строки */
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    white-space: nowrap;
     text-overflow: ellipsis;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    word-break: break-word;
+    white-space: normal;          /* важно: разрешить перенос */
+    font-size: 0.75rem;
+    line-height: 1.1rem;
+    max-height: 2.3rem;           /* чтобы не вылезало больше 2 строк */
 }
 
-.booking-confirmed {
-    background: linear-gradient(135deg, #0d6efd 0%, #3b82f6 100%); /* Blue gradient */
+.booking-link:hover,
+.booking-link:focus {
+    color: #ffdb4d;
+    transform: scale(1.05);
 }
 
-.booking-pending {
-    background: linear-gradient(135deg, #fd7e14 0%, #fb923c 100%); /* Orange gradient */
-}
-
-.booking-occupied {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    height: 100%;
-    width: 100%;
-    border-radius: 8px;
-}
-
-.booking-pending-indicator {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-    height: 100%;
-    width: 100%;
-    border-radius: 8px;
-}
 .booking-link:visited {
-    color: #f8f9fa;
+    color: #ffffff;
+}
+
+.booking-full {
+    background: var(--confirmed-color);
+    cursor: default;
+}
+
+.booking-full.pending {
+    background: var(--pending-color);
+}
+
+.booking-combined {
+    background: var(--confirmed-color);
+    cursor: default;
+}
+
+.booking-combined.pending {
+    background: var(--pending-color);
+}
+
+.booking-combined-mixed {
+    background: linear-gradient(to right, var(--left-color) 50%, var(--right-color) 50%);
+    cursor: default;
+}
+
+.booking-start-half {
+    background: linear-gradient(to right, var(--confirmed-color) 50%, transparent 50%);
+    position: relative;
+    cursor: pointer;
+}
+
+.booking-start-half.pending {
+    background: linear-gradient(to right, var(--pending-color) 50%, transparent 50%);
+}
+
+.booking-end-half {
+    background: linear-gradient(to right, transparent 50%, var(--confirmed-color) 50%);
+    position: relative;
+    cursor: pointer;
+}
+
+.booking-end-half.pending {
+    background: linear-gradient(to right, transparent 50%, var(--pending-color) 50%);
 }
 
 /* ===== Calendar Cell Selection ===== */
 .calendar-cell {
-    position: relative; /* нужно для ::before и ::after */
-    cursor: pointer;
-    height: 70px;
-    width: 70px;
-    padding: 8px;
+    height: 36px;
     vertical-align: middle;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    padding: 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
 }
 
 .calendar-cell:hover {
@@ -309,7 +350,15 @@ body {
 .selected-start,
 .selected-end {
     background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
-    animation: pulse 1.5s ease-in-out 3; /* Limited to 3 cycles */
+    z-index: 0; /* под слоями бронирования */
+    pointer-events: none;
+    border-radius: 2px;
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    position: absolute;
+    inset: 0;
 }
 
 .selected-range {
@@ -351,7 +400,7 @@ body {
 }
 
 .modal-backdrop {
-    opacity: 0.5 !important; /* Subtle backdrop */
+    opacity: 0.5 !important;
     display: none !important;
 }
 
@@ -385,15 +434,9 @@ body {
 
 /* ===== Animation ===== */
 @keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-    }
-    70% {
-        box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 @media (max-width: 768px) {
@@ -405,7 +448,7 @@ body {
 
     .calendar-table th,
     .calendar-table td {
-        min-width: 40px; /* Уменьшено для компактности */
+        min-width: 40px;
         height: 40px;
         padding: 4px;
         font-size: 0.7rem;
@@ -431,7 +474,6 @@ body {
         padding: 2px;
     }
 
-    /* Уменьшаем размер текста в ячейках */
     .room-number {
         font-size: 0.9rem;
     }
@@ -450,190 +492,48 @@ body.modal-open {
 .calendar-hidden {
     display: none;
 }
+.legend {
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+.no-pointer {
+    pointer-events: none;
+}
+.booking-link-icon {
+    font-size: 1rem;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-/* ===== Calendar Cell Styles ===== */
 .calendar-cell {
     position: relative;
-    cursor: pointer;
-    height: 70px;
-    width: 70px;
-    padding: 8px;
-    vertical-align: middle;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    overflow: hidden;
 }
 
-.calendar-cell:hover {
-    background-color: #f1f5f9;
-    transform: scale(1.05);
-}
-
-/* Полностью забронированная ячейка */
-.booking-full {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    cursor: default;
-}
-
-.booking-full.pending {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-}
-
-/* Комбинированная ячейка (въезд и выезд в один день) */
-.booking-combined {
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    cursor: default;
-}
-
-.booking-combined.pending {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-}
-
-/* День выезда (левая половина ячейки) */
-.booking-start-half::before {
-    content: "";
+.cell-background {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-    z-index: 1;
-}
-
-/* День въезда (правая половина ячейки) */
-.booking-end-half::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    z-index: 1;
-}
-
-/* Pending состояния */
-.booking-start-half.pending::before,
-.booking-end-half.pending::after {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-}
-
-/* Ensure half-cells are clickable */
-.booking-start-half,
-.booking-end-half {
-    cursor: pointer;
-}
-
-/* Selected cell states */
-.calendar-cell.selected-start::after,
-.calendar-cell.selected-end::before {
-    box-shadow: inset 0 0 0 3px #10b981;
-    z-index: 2;
-}
-
-.selected-start,
-.selected-end {
-    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
-    animation: pulse 1.5s ease-in-out 3;
-}
-
-.selected-range {
-    background: #d1fae5;
+    inset: 0;
+    z-index: 0; /* Под всем */
+    background-color: transparent;
     transition: background-color 0.3s ease;
 }
 
-/* Booking link styles for admin mode */
-.booking-link {
+.cell-content {
     position: relative;
-    z-index: 3;
-    display: block;
-    color: #ffffff; /* Улучшенная контрастность */
-    text-decoration: none;
-    font-weight: 600;
-    padding: 4px;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3); /* Добавляем тень для читаемости */
-}
-
-.booking-link:hover,
-.booking-link:focus {
-    color: #ffdb4d; /* Более яркий цвет при наведении */
-    transform: scale(1.05);
-}
-
-.booking-link:visited {
-    color: #ffffff;
-}
-
-/* Responsive adjustments for booking links */
-@media (max-width: 768px) {
-    .booking-link {
-        font-size: 0.75rem;
-        padding: 2px;
-    }
-}
-
-/* Комбинированная бронь: выезд + въезд в один день */
-.booking-combined::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
     z-index: 1;
 }
 
-.booking-combined::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    z-index: 1;
+.cell-background.selected-start,
+.cell-background.selected-end {
+    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
 }
 
-/* Ожидающая бронь (левая + правая) */
-.booking-combined.pending::before,
-.booking-combined.pending::after {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-}
-
-.booking-combined-mixed::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 50%;
-    height: 100%;
-    background: var(--left-color);
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-    z-index: 1;
-}
-
-.booking-combined-mixed::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: var(--right-color);
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-    z-index: 1;
-}
+.cell-background.selected-range {
+    background-color: #d1fae5;
+}   

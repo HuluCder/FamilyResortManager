@@ -13,15 +13,17 @@ namespace FamilyResortManager.Pages.Client.Bookings
     {
         private readonly AppDbContext _context;
         private readonly EmailService _emailService;
+        private readonly TelegramNotifier _telegramNotifier;
 
         [BindProperty] public Booking Booking { get; set; }
 
         public string RoomNumber { get; set; }
 
-        public CreateModel(AppDbContext context, EmailService emailService)
+        public CreateModel(AppDbContext context, EmailService emailService, TelegramNotifier telegramNotifier)
         {
             _context = context;
             _emailService = emailService;
+            _telegramNotifier = telegramNotifier;
         }
 
         public async Task<IActionResult> OnGetAsync(int roomId, DateTime checkInDate, DateTime checkOutDate)
@@ -58,10 +60,12 @@ namespace FamilyResortManager.Pages.Client.Bookings
 
                 int roomId = int.Parse(form["Input.RoomId"]);
                 // Парсинг дат с явным указанием UTC
-                DateTime checkInDate = DateTime.Parse(form["Input.CheckInDate"], null,
-                    System.Globalization.DateTimeStyles.AdjustToUniversal);
-                DateTime checkOutDate = DateTime.Parse(form["Input.CheckOutDate"], null,
-                    System.Globalization.DateTimeStyles.AdjustToUniversal);
+                DateTime checkInDate = DateTime.Parse(form["Input.CheckInDate"]);
+                DateTime checkOutDate = DateTime.Parse(form["Input.CheckOutDate"]);
+
+                // Принудительно задать время как локальное:
+                checkInDate = checkInDate.Date.AddHours(13).ToUniversalTime();
+                checkOutDate = checkOutDate.Date.AddHours(10).ToUniversalTime();
 
                 // Проверка корректности дат
                 if (checkOutDate <= checkInDate)
@@ -129,14 +133,27 @@ namespace FamilyResortManager.Pages.Client.Bookings
                 // 📧 Отправка письма админу
                 var subject = "🔔 Новая заявка на бронирование";
                 var body = $@"
-            <h3>Поступила новая заявка</h3>
-            <p><strong>Имя:</strong> {clientName}</p>
-            <p><strong>Телефон:</strong> {clientPhone}</p>
-            <p><strong>Email:</strong> {clientEmail}</p>
-            <p><strong>Номер комнаты:</strong> {roomName}</p>
-            <p><strong>Период:</strong> {checkInDate:dd.MM.yyyy HH:mm} – {checkOutDate:dd.MM.yyyy HH:mm}</p>
-            <p><strong>Статус:</strong> Ожидание</p>
-            <p><a href=""https://localhost:7058/Admin/Bookings/Details/{booking.Id}"">Перейти к заявке в админке</a></p>";
+                <h3>Поступила новая заявка</h3>
+                <p><strong>Имя:</strong> {clientName}</p>
+                <p><strong>Телефон:</strong> {clientPhone}</p>
+                <p><strong>Email:</strong> {clientEmail}</p>
+                <p><strong>Номер комнаты:</strong> {roomName}</p>
+                <p><strong>Период:</strong> {checkInDate:dd.MM.yyyy HH:mm} – {checkOutDate:dd.MM.yyyy HH:mm}</p>
+                <p><strong>Статус:</strong> Ожидание</p>
+                <p><a href=""https://localhost:7058/Admin/Bookings/Details/{booking.Id}"">Перейти к заявке в админке</a></p>";
+                
+                var message = string.Join('\n', new[]
+                {
+                    "🛎️  <b>Новая заявка</b>",
+                    $"📅  <b>{booking.CheckInDate:dd.MM.yyyy} – {booking.CheckOutDate:dd.MM.yyyy}</b>",
+                    $"🛏️  Номер: {room.Type} №{room.Number}",
+                    $"👤  Клиент: {clientName}",
+                    $"📞  Телефон: {clientPhone}",
+                    $"✉️  Email: {clientEmail}",
+                    $"🔗 <a href=\"https://localhost:7058/Admin/Bookings/Details/{booking.Id}\">Открыть заявку</a>"
+                });
+
+                await _telegramNotifier.SendMessageAsync(message);
 
                 await _emailService.SendEmailAsync("danya16f@gmail.com", subject, body);
 

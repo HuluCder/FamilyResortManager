@@ -58,6 +58,10 @@ namespace FamilyResortManager.Pages.Bookings
                 await PopulateSelectListsAsync();
                 return Page();
             }
+            
+            // Установка времени въезда и выезда
+            Input.CheckInDate  = Input.CheckInDate.Date.AddHours(13).ToUniversalTime();
+            Input.CheckOutDate = Input.CheckOutDate.Date.AddHours(10).ToUniversalTime();
 
             await _bookingService.UpdateAsync(Input);
             return RedirectToPage("./Index");
