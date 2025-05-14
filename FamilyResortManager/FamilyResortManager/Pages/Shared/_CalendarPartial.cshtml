@@ -1,0 +1,196 @@
+@using FamilyResortManager.Data.DataBase.Models
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model FamilyResortManager.Pages.Bookings.CalendarModel
+
+<div class="calendar-container">
+    <table class="calendar-table" role="grid">
+        <thead>
+        <tr>
+            <th>Номер</th>
+            @for (DateTime date = Model.StartDate; date <= Model.EndDate; date = date.AddDays(1))
+            {
+                if (date < new DateTime(2025, 6, 15) || date > new DateTime(2025, 8, 12)) continue;
+                var isToday = date.Date == DateTime.UtcNow.Date;
+                var isWeekend = date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday;
+                <th class="@(isToday ? "day-today" : "") @(isWeekend ? "day-weekend" : "")">
+                    @date.ToString("dd MMM", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"))
+                    <br />
+                    @date.ToString("ddd", System.Globalization.CultureInfo.GetCultureInfo("ru-RU")).Substring(0, 2)
+                </th>
+            }
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var room in Model.Rooms.OrderBy(r => r.Number))
+        {
+            <tr class="animate__animated animate__fadeIn" style="animation-delay: @(Model.Rooms.ToList().IndexOf(room) * 0.1)s">
+                <td class="room-header">
+                    <div class="room-info">
+                        <span class="room-number">@room.Number</span>
+                        <span class="room-type">@room.Type</span>
+                    </div>
+                </td>
+                @{
+                    var cursor = Model.StartDate.Date;
+                    var roomBookings = Model.Bookings
+                        .Where(b => b.RoomId == room.Id)
+                        .OrderBy(b => b.CheckInDate)
+                        .ToList();
+                    var roomPendingBookings = Model.PendingBookings
+                        .Where(b => b.RoomId == room.Id)
+                        .OrderBy(b => b.CheckInDate)
+                        .ToList();
+                }
+                @for (DateTime date = Model.StartDate.Date; date <= Model.EndDate.Date; date = date.AddDays(1))
+                {
+                    if (date < new DateTime(2025, 6, 15) || date > new DateTime(2025, 8, 12)) continue;
+                    var booking = roomBookings.FirstOrDefault(b =>
+                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
+
+                    var pending = roomPendingBookings.FirstOrDefault(b =>
+                        b.CheckInDate.Date <= date && b.CheckOutDate.Date >= date);
+                    
+                    var checkInOnlyBooking = roomBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+                    var pendingCheckInOnlyBooking = roomPendingBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+
+
+                    // Проверяем въезд и выезд для каждого бронирования
+                    var isCheckIn = booking?.CheckInDate.Date == date;
+                    var isCheckOut = booking?.CheckOutDate.Date == date;
+                    var isPendingCheckIn = pending?.CheckInDate.Date == date;
+                    var isPendingCheckOut = pending?.CheckOutDate.Date == date;
+                    var cssClass = "";
+                    var tooltip = "";
+                    var isClickable = true;
+                    var checkOutBooking = roomBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
+                    var checkInBooking = roomBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+                    var pendingCheckOutBooking = roomPendingBookings.FirstOrDefault(b => b.CheckOutDate.Date == date);
+                    var pendingCheckInBooking = roomPendingBookings.FirstOrDefault(b => b.CheckInDate.Date == date);
+
+                    var hasConfirmedOut = checkOutBooking != null;
+                    var hasPendingOut = pendingCheckOutBooking != null;
+                    var hasConfirmedIn = checkInBooking != null;
+                    var hasPendingIn = pendingCheckInBooking != null;
+
+                    // Проверяем комбинированное состояние (въезд и выезд в один день для одной брони)
+                    bool isCombined = false;
+                    Booking combinedBooking = null;
+
+                    if (booking != null && isCheckIn && isCheckOut)
+                    {
+                        isCombined = true;
+                        combinedBooking = booking;
+                    }
+                    else if (pending != null && isPendingCheckIn && isPendingCheckOut)
+                    {
+                        isCombined = true;
+                        combinedBooking = pending;
+                    }
+
+                    // Устанавливаем cssClass с использованием else if для предотвращения перезаписи
+                    if ((hasConfirmedOut || hasPendingOut) && (hasConfirmedIn || hasPendingIn))
+                    {
+                        cssClass = "booking-combined-mixed";
+                        tooltip = "";
+                        if (hasConfirmedOut)
+                            tooltip += $"Выезд: {checkOutBooking.CheckOutDate.ToLocalTime():dd.MM HH:mm}\nКлиент: {checkOutBooking.Client?.Name}\n";
+                        if (hasPendingOut)
+                            tooltip += $"Выезд (ожидание): {pendingCheckOutBooking.CheckOutDate.ToLocalTime():dd.MM HH:mm}\nКлиент: {pendingCheckOutBooking.Client?.Name}\n";
+
+                        if (hasConfirmedIn)
+                            tooltip += $"Заезд: {checkInBooking.CheckInDate.ToLocalTime():dd.MM HH:mm}\nКлиент: {checkInBooking.Client?.Name}";
+                        if (hasPendingIn)
+                            tooltip += $"Заезд (ожидание): {pendingCheckInBooking.CheckInDate.ToLocalTime():dd.MM HH:mm}\nКлиент: {pendingCheckInBooking.Client?.Name}";
+
+                        isClickable = false;
+                    }
+                    else if (isCombined)
+                    {
+                        cssClass = "booking-combined";
+                        if (combinedBooking?.Status == "Ожидание") cssClass += " pending";
+                        tooltip = $"Бронь: {combinedBooking?.CheckInDate.ToLocalTime():dd.MM HH:mm} → {combinedBooking?.CheckOutDate.ToLocalTime():dd.MM HH:mm}" +
+                                  (combinedBooking?.Client?.Name != null ? $"\nКлиент: {combinedBooking.Client.Name}" : "");
+                        isClickable = false;
+                    }
+                    else if (booking != null)
+                    {
+                        if (isCheckIn)
+                        {
+                            cssClass = "booking-end-half";
+                            tooltip = $"Заезд: {booking.CheckInDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                        }
+                        else if (isCheckOut)
+                        {
+                            cssClass = "booking-start-half";
+                            tooltip = $"Выезд: {booking.CheckOutDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                        }
+                        else
+                        {
+                            cssClass = "booking-full";
+                            tooltip = $"Бронь: {booking.CheckInDate.ToLocalTime():dd.MM HH:mm} → {booking.CheckOutDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (booking.Client?.Name != null ? $"\nКлиент: {booking.Client.Name}" : "");
+                            isClickable = false;
+                        }
+                    }
+                    else if (pending != null)
+                    {
+                        if (isPendingCheckIn)
+                        {
+                            cssClass = "booking-end-half pending";
+                            tooltip = $"Ожидает заезд: {pending.CheckInDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                        }
+                        else if (isPendingCheckOut)
+                        {
+                            cssClass = "booking-start-half pending";
+                            tooltip = $"Ожидает выезд: {pending.CheckOutDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                        }
+                        else
+                        {
+                            cssClass = "booking-full pending";
+                            tooltip = $"Ожидает: {pending.CheckInDate.ToLocalTime():dd.MM HH:mm} → {pending.CheckOutDate.ToLocalTime():dd.MM HH:mm}" +
+                                      (pending.Client?.Name != null ? $"\nКлиент: {pending.Client.Name}" : "");
+                            isClickable = false;
+                        }
+                    }
+                    else
+                    {
+                        cssClass = "";
+                        tooltip = "Свободно";
+                    }
+
+                    <td class="calendar-cell @cssClass @((!Model.IsAdmin && (cssClass.Contains("booking-full") || cssClass.Contains("booking-combined-mixed"))) ? "no-pointer" : "")"
+                        role="gridcell"
+                        aria-label="@tooltip"
+                        data-date="@date.ToString("yyyy-MM-dd")"
+                        data-room-id="@room.Id"
+                        data-tippy-content="@(Model.IsAdmin ? tooltip : "Свободно")"
+                        style="--left-color: @(hasPendingOut ? "#f97316" : "#3b82f6"); --right-color: @(hasPendingIn ? "#f97316" : "#3b82f6");"
+                        tabindex="@(cssClass.Contains("booking-full") || cssClass.Contains("booking-combined-mixed") ? "-1" : "0")"
+                        onclick="@(Model.IsAdmin || !isClickable ? "" : "selectDate(new Date('" + date.ToString("yyyy-MM-dd") + "'), " + room.Id + ")")"
+                        onkeydown="@(Model.IsAdmin || !isClickable ? "" : "handleKeyDown(event, new Date('" + date.ToString("yyyy-MM-dd") + "'), " + room.Id + ")")">
+                        <div class="cell-background"></div>
+                        <div class="cell-content">
+                            @if (Model.IsAdmin && (checkInOnlyBooking != null || pendingCheckInOnlyBooking != null))
+                            {
+                                var displayId = checkInOnlyBooking?.Id ?? pendingCheckInOnlyBooking?.Id ?? 0;
+                                var displayName = checkInOnlyBooking?.Client?.Name ?? pendingCheckInOnlyBooking?.Client?.Name ?? "Клиент";
+
+                                <a asp-page="/Admin/Bookings/Details"
+                                   asp-route-id="@displayId"
+                                   class="booking-link-icon"
+                                   data-tippy-content="@displayName">
+                                    👤
+                                </a>
+                            }
+                        </div>
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
