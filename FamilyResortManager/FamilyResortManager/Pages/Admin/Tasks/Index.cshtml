@@ -1,0 +1,31 @@
+@page
+@model FamilyResortManager.Pages.Admin.Tasks.IndexModel
+@{
+    ViewData["Title"] = "Задачи";
+}
+
+<h1>Список задач</h1>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>Заголовок</th>
+        <th>Назначено</th>
+        <th>Статус</th>
+        <th>Приоритет</th>
+        <th>Дата</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var task in Model.Tasks)
+    {
+        <tr>
+            <td>@task.Title</td>
+            <td>@task.AssignedToUser?.FullName ?? "(не назначено)"</td>
+            <td>@task.Status</td>
+            <td>@task.Priority</td>
+            <td>@task.CreatedAt.ToLocalTime().ToString("g")</td>
+        </tr>
+    }
+    </tbody>
+</table>

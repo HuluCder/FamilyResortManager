@@ -1,0 +1,53 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Tasks.EditModel
+@{
+    ViewData["Title"] = "Редактирование задачи";
+}
+
+<div class="container py-6">
+    <h2 class="text-2xl font-bold mb-4">Редактировать задачу</h2>
+
+    <form method="post">
+        <input type="hidden" asp-for="Task.Id" />
+
+        <div class="mb-3">
+            <label asp-for="Task.Title" class="form-label"></label>
+            <input asp-for="Task.Title" class="form-control" />
+            <span asp-validation-for="Task.Title" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Task.Description" class="form-label"></label>
+            <textarea asp-for="Task.Description" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Task.Category" class="form-label"></label>
+            <input asp-for="Task.Category" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Task.Priority" class="form-label"></label>
+            <select asp-for="Task.Priority" class="form-select">
+                <option>Обычный</option>
+                <option>Высокий</option>
+                <option>Критичный</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Task.AssignedToUserId" class="form-label">Назначить</label>
+            <select asp-for="Task.AssignedToUserId" class="form-select">
+                <option value="">(не назначено)</option>
+                @foreach (var user in Model.AvailableUsers)
+                {
+                    <option value="@user.Id">@((user.FullName ?? user.Email) ?? "(неизвестный пользователь)")</option>
+
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a asp-page="Index" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>

@@ -10,6 +10,7 @@ using FamilyResortManager.Services.Validators;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using FamilyResortManager.Data.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,17 +23,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseLazyLoadingProxies());
 
 // Добавление служб Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-{
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
-    options.SignIn.RequireConfirmedAccount = false;
-})
-.AddEntityFrameworkStores<AppDbContext>()
-.AddDefaultTokenProviders();
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = true;
+        options.Password.RequiredLength = 8;
+        options.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
 // Настройка cookie
 builder.Services.ConfigureApplicationCookie(options =>
@@ -59,10 +60,7 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("Administrator", "Employee"));
 });
 
-builder.Services.AddSingleton(new TelegramNotifier(
-    botToken: "7597481026:AAFTjqO1ijk7osMZfqAyYXAsodCh3iuQKLg",
-    chatId: "454965133"
-));
+builder.Services.AddSingleton<TelegramNotifier>();
 
 builder.Services.AddAutoMapper(typeof(AppMappingProfile).Assembly);
 builder.Services.AddScoped<IRoomService, RoomService>();

@@ -1,0 +1,20 @@
+@page "{id:int}"
+@model FamilyResortManager.Pages.Tasks.DeleteModel
+@{
+    ViewData["Title"] = "Удаление задачи";
+}
+
+<div class="container py-4">
+    <h2 class="text-danger mb-3">Вы уверены, что хотите удалить задачу?</h2>
+    <div>
+        <strong>@Model.Task.Title</strong>
+        <p>@Model.Task.Description</p>
+        <p>Статус: @Model.Task.Status</p>
+    </div>
+
+    <form method="post">
+        <input type="hidden" asp-for="Task.Id" />
+        <button type="submit" class="btn btn-danger">Удалить</button>
+        <a asp-page="Index" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>

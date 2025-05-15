@@ -33,7 +33,15 @@
             <a href="/BookCalendar/Calendar" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
                 Календарь
             </a>
-
+            @if (User.IsInRole("Administrator") || User.IsInRole("Employee"))
+            {
+                <a href="/Tasks" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
+                    Задачи
+                </a>
+                <a href="/Account/Telegram" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
+                    Telegram
+                </a>
+            }
             @if (User.IsInRole("Administrator"))
             {
                 <div class="relative group">
@@ -110,6 +118,15 @@
         <a href="/BookCalendar/Calendar" class="block py-3 px-6 hover:bg-blue-600 transition">
             Календарь
         </a>
+        @if (User.IsInRole("Administrator") || User.IsInRole("Employee"))
+        {
+            <a href="/Tasks" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
+                Задачи
+            </a>
+            <a href="/Account/Telegram" class="rounded-full bg-yellow-400 text-blue-900 px-4 py-2 text-sm font-semibold tracking-wide hover:bg-yellow-300 transition shadow-md">
+                Telegram
+            </a>
+        }
         @if (User.IsInRole("Administrator"))
         {
             <a href="/Admin/EmployeeManagement" class="block py-3 px-6 hover:bg-blue-600 transition">Управление сотрудниками</a>
@@ -125,6 +142,11 @@
 <div class="mobile-menu bg-blue-800 text-yellow-300 hidden">
     <a href="/" class="nav-link block py-2 px-4 hover:bg-blue-700 transition">Главная</a>
     <a href="/BookCalendar/Calendar" class="nav-link block py-2 px-4 hover:bg-blue-700 transition">Календарь</a>
+    @if (User.IsInRole("Administrator") || User.IsInRole("Employee"))
+    {
+        <a href="/Tasks" class="block py-3 px-6 hover:bg-blue-600 transition">Задачи</a>
+        <a href="/Account/Telegram" class="block py-3 px-6 hover:bg-blue-600 transition">Telegram</a>
+    }
     @if (User.IsInRole("Administrator"))
     {
         <a href="/Admin/EmployeeManagement" class="nav-link block py-2 px-4 hover:bg-blue-700 transition">Управление сотрудниками</a>
@@ -161,6 +183,8 @@
                     {
                         <li><a href="/Admin/Rooms" class="text-sm hover:text-blue-300 transition">Номера</a></li>
                         <li><a href="/Admin/Bookings" class="text-sm hover:text-blue-300 transition">Бронирования</a></li>
+                        <li><a href="/Tasks" class="text-sm hover:text-blue-300 transition">Задачи</a></li>
+                        <li><a href="/Account/Telegram" class="text-sm hover:text-blue-300 transition">Telegram</a></li>
                     }
                 </ul>
             </div>

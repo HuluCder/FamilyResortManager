@@ -1,0 +1,134 @@
+@page
+@using Microsoft.AspNetCore.Identity
+@using FamilyResortManager.Data.DataBase.Models
+@model FamilyResortManager.Pages.Tasks.IndexModel
+@{
+    ViewData["Title"] = "Задачи";
+    var isAdmin = User.IsInRole("Administrator");
+}
+
+<div class="container mx-auto py-6">
+    <h1 class="text-2xl font-bold mb-4">Список задач</h1>
+
+    @if (isAdmin)
+    {
+        <a class="btn btn-primary mb-3" asp-page="Create">Создать новую задачу</a>
+    }
+
+    <!-- 🔽 Блок фильтрации -->
+    <form method="get" id="filterForm" class="mb-4 d-flex flex-wrap gap-3 align-items-end">
+        <div>
+            <label>Статус</label>
+            <select name="StatusFilter" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="">Все</option>
+                @foreach (var status in Model.AvailableStatuses)
+                {
+                    <option value="@status" selected="@(status == Model.StatusFilter)">
+                        @status
+                    </option>
+                }
+            </select>
+        </div>
+        <div>
+            <label>Категория</label>
+            <select name="CategoryFilter" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="">Все</option>
+                @foreach (var category in Model.AvailableCategories)
+                {
+                    <option value="@category" selected="@(category == Model.CategoryFilter)">
+                        @category
+                    </option>
+                }
+            </select>
+        </div>
+        <div>
+            <label>Сортировать по</label>
+            <select name="SortBy" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="CreatedAt" selected="@(Model.SortBy == "CreatedAt")">Дата создания</option>
+                <option value="Priority" selected="@(Model.SortBy == "Priority")">Приоритет</option>
+            </select>
+        </div>
+        <div>
+            <label>Порядок</label>
+            <select name="SortOrder" class="form-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="asc" selected="@(Model.SortOrder == "asc")">По возрастанию</option>
+                <option value="desc" selected="@(Model.SortOrder == "desc")">По убыванию</option>
+            </select>
+        </div>
+        <div>
+            <label>Поиск по заголовку</label>
+            <input type="text" name="TitleSearch" class="form-control" value="@Model.TitleSearch"
+                   oninput="clearTimeout(this._timeout); this._timeout = setTimeout(() => document.getElementById('filterForm').submit(), 500)" />
+        </div>
+        <a href="./Index" class="btn btn-secondary">Сбросить</a>
+    </form>
+    <!-- 🔼 Конец блока фильтрации -->
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Заголовок</th>
+                <th>Категория</th>
+                <th>Приоритет</th>
+                <th>Ответственный</th>
+                <th>Статус</th>
+                @if (!isAdmin)
+                {
+                    <th>Комментарий</th>
+                    <th>Изменить</th>
+                }
+                @if (isAdmin)
+                {
+                    <th>Логи</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in Model.Tasks)
+        {
+            <tr>
+                <td>@task.Title</td>
+                <td>@task.Category</td>
+                <td>@task.Priority</td>
+                <td>@(task.AssignedToUser?.FullName ?? task.AssignedToUser?.Email ?? "(не назначен)")</td>
+                <td>@task.Status</td>
+
+                @if (!isAdmin && task.AssignedToUserId == Model.CurrentUserId)
+                {
+                    <td>
+                        <form method="post" asp-page-handler="UpdateComment" class="d-flex">
+                            <input type="hidden" name="taskId" value="@task.Id" />
+                            <input class="form-control" name="comment" value="@task.Comment" />
+                            <button type="submit" class="btn btn-sm btn-success ml-1">💾</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form method="post" asp-page-handler="UpdateStatus">
+                            <input type="hidden" name="taskId" value="@task.Id" />
+                            <select name="status" class="form-select">
+                                <option selected disabled>@task.Status</option>
+                                <option value="В процессе">В процессе</option>
+                                <option value="Завершено">Завершено</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary mt-1">✅</button>
+                        </form>
+                    </td>
+                }
+
+                @if (isAdmin)
+                {
+                    <td>
+                        <a asp-page="Logs" asp-route-taskId="@task.Id" class="btn btn-sm btn-outline-secondary">Логи</a>
+                    </td>
+                    <td>
+                        <a asp-page="Edit" asp-route-id="@task.Id" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                    </td>
+                    <td>
+                        <a asp-page="Delete" asp-route-id="@task.Id" class="btn btn-sm btn-danger">Удалить</a>
+                    </td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

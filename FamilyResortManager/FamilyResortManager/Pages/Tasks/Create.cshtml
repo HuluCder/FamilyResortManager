@@ -1,0 +1,42 @@
+@page
+@model FamilyResortManager.Pages.Tasks.CreateModel
+@using Microsoft.AspNetCore.Identity
+@using FamilyResortManager.Data.Identity
+@{
+    ViewData["Title"] = "Создание задачи";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Создание новой задачи</h2>
+
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Заголовок</label>
+            <input asp-for="Task.Title" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Описание</label>
+            <textarea asp-for="Task.Description" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Категория</label>
+            <input asp-for="Task.Category" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Приоритет</label>
+            <select asp-for="Task.Priority" class="form-select">
+                <option>Обычный</option>
+                <option>Высокий</option>
+                <option>Низкий</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Назначить сотрудника</label>
+            <select asp-for="Task.AssignedToUserId" asp-items="Model.Users" class="form-select">
+                <option value="">(не назначать)</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Создать</button>
+        <a asp-page="Index" class="btn btn-secondary">Назад</a>
+    </form>
+</div>

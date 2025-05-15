@@ -1,0 +1,38 @@
+@page "{taskId:int}"
+@model FamilyResortManager.Pages.Tasks.LogsModel
+@{
+    ViewData["Title"] = "История изменений";
+}
+
+<div class="container py-6">
+    <h2 class="text-2xl font-bold mb-4">История изменений задачи: @Model.Task?.Title</h2>
+
+    @if (Model.Logs.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Дата и время</th>
+                <th>Пользователь</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                <tr>
+                    <td>@log.Timestamp.ToLocalTime().ToString("g")</td>
+                    <td>@(log.User?.FullName ?? log.User?.Email ?? "—")</td>
+                    <td>@log.Action</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>История пуста.</p>
+    }
+
+    <a asp-page="Index" class="btn btn-secondary mt-3">← Назад к списку задач</a>
+</div>

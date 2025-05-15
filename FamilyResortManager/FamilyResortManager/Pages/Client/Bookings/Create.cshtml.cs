@@ -153,7 +153,7 @@ namespace FamilyResortManager.Pages.Client.Bookings
                     $"🔗 <a href=\"https://localhost:7058/Admin/Bookings/Details/{booking.Id}\">Открыть заявку</a>"
                 });
 
-                await _telegramNotifier.SendMessageAsync(message);
+                await _telegramNotifier.SendMessageAsync(454965133.ToString(), message);
 
                 await _emailService.SendEmailAsync("danya16f@gmail.com", subject, body);
 

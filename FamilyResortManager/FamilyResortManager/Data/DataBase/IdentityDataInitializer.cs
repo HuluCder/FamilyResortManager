@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using FamilyResortManager.Data.Identity;
 
 namespace FamilyResortManager.Services.Authentication
 {
@@ -7,9 +8,11 @@ namespace FamilyResortManager.Services.Authentication
         public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
             using var scope = serviceProvider.CreateScope();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-            
+            var scopedProvider = scope.ServiceProvider;
+
+            var userManager = scopedProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = scopedProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
             await SeedRolesAsync(roleManager);
             await SeedDefaultUsersAsync(userManager);
         }
@@ -28,7 +31,7 @@ namespace FamilyResortManager.Services.Authentication
             }
         }
         
-        private static async Task SeedDefaultUsersAsync(UserManager<IdentityUser> userManager)
+        private static async Task SeedDefaultUsersAsync(UserManager<ApplicationUser> userManager)
         {
             // Создаем администратора по умолчанию
             var adminEmail = "admin@familyresort.com";
@@ -36,7 +39,7 @@ namespace FamilyResortManager.Services.Authentication
             
             if (adminUser == null)
             {
-                adminUser = new IdentityUser
+                adminUser = new ApplicationUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
